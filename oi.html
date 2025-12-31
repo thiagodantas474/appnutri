@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Jogo ABC da Nutrição — Análise Funcional (Mobile)</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#111a33; --muted:#9fb0ff;
+      --text:#e9eeff; --soft:#16224a; --ok:#22c55e; --bad:#ef4444;
+      --btn:#2b3cff; --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, #1a2a6a22, transparent),
+        radial-gradient(1200px 700px at 80% 30%, #7c3aed22, transparent),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      min-height:100vh;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+               max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+    }
+    .wrap{width:min(1050px, 100%); display:grid; gap:12px; align-content:start}
+    header{
+      padding:14px 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #121a37, #0f1633);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.06);
+      display:grid;
+      gap:10px;
+    }
+    header h1{margin:0; font-size:16px; letter-spacing:.2px}
+    header .sub{color:rgba(233,238,255,.75); font-size:12.5px; line-height:1.3}
+    .stats{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .pill{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      padding:7px 9px;
+      border-radius: 999px;
+      font-size:12px;
+      color: rgba(233,238,255,.85);
+      display:flex; gap:6px; align-items:center;
+    }
+    .pill b{font-family:var(--mono); font-weight:700; color:var(--text)}
+    .btn{
+      border:none; cursor:pointer; border-radius: 12px;
+      padding:10px 12px; font-weight:700; letter-spacing:.2px;
+      background: linear-gradient(180deg, rgba(43,60,255,.95), rgba(43,60,255,.75));
+      color:white;
+      box-shadow: 0 8px 18px rgba(43,60,255,.25);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+    .btn.secondary{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow:none;
+    }
+
+    /* Layout base */
+    main{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      align-content:start;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+      background: rgba(0,0,0,.12);
+    }
+    .badge{
+      font-family:var(--mono); font-size:12px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(43,60,255,.18);
+      border: 1px solid rgba(43,60,255,.35);
+      color: rgba(233,238,255,.92);
+      white-space:nowrap;
+    }
+    .small{font-size:12px; color: rgba(233,238,255,.7)}
+    .kpi{font-family:var(--mono); font-size:12px; color: rgba(233,238,255,.9)}
+    .case{padding:14px; font-size:15px; line-height:1.35}
+    .hint{margin-top:10px; color: rgba(233,238,255,.75); font-size:13px}
+
+    /* Mobile-first: tabs/pager */
+    .tabs{
+      display:flex;
+      gap:8px;
+      padding:10px 10px 0 10px;
+      background: rgba(0,0,0,.10);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+    .tab{
+      flex:1;
+      border-radius: 999px;
+      padding:10px 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(22,34,74,.55);
+      color: rgba(233,238,255,.92);
+      font-weight:800;
+      font-size:12px;
+      text-align:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .tab.active{
+      background: rgba(43,60,255,.35);
+      border-color: rgba(43,60,255,.55);
+    }
+
+    .panel{padding:12px 14px;}
+    .block{
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding:12px;
+      display:none; /* shown by tab */
+    }
+    .block.active{display:block}
+    .block .lbl{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-bottom:8px;
+      font-size:12px; color: rgba(233,238,255,.78);
+      text-transform: uppercase; letter-spacing: .12em;
+    }
+    .choices{display:grid; gap:10px}
+    .choice{
+      width:100%;
+      border-radius: 14px;
+      padding:12px 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(22,34,74,.55);
+      color: var(--text);
+      text-align:left;
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      font-size:14px;
+      line-height:1.25;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .choice:active{transform: scale(.99)}
+    .choice[aria-pressed="true"]{background: rgba(43,60,255,.35); border-color: rgba(43,60,255,.55)}
+    .choice.ok{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.45)}
+    .choice.bad{background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.45)}
+
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-top:12px;
+    }
+    .row .btn{flex:1; min-width: 140px}
+    .feedback{
+      margin-top:12px;
+      border-radius: 14px;
+      padding:12px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.08);
+      display:none;
+    }
+    .feedback.show{display:block}
+    .feedback h3{margin:0 0 6px 0; font-size:14px}
+    .feedback p{margin:0; color: rgba(233,238,255,.85); font-size:13px; line-height:1.35}
+
+    /* Sticky action bar (mobile) */
+    .actionbar{
+      position: sticky;
+      bottom: 0;
+      z-index: 20;
+      padding:10px;
+      background: rgba(8,12,28,.86);
+      border-top: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      display:flex;
+      gap:10px;
+    }
+    .actionbar .btn{flex:1}
+    .actionbar .btn.secondary{flex:.9}
+
+    /* Desktop enhancement (wider screens): show A/B/C blocks at once */
+    @media (min-width: 980px){
+      main{grid-template-columns: 1.1fr .9fr}
+      .tabs{display:none}
+      .block{display:block}
+      .block.active{display:block}
+      .actionbar{display:none}
+      header{
+        display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      }
+      .stats{justify-content:flex-end}
+    }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.55);
+      padding:18px;
+    }
+    .modal.show{display:flex}
+    .modal .box{
+      width:min(760px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .box .hd{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.12);
+    }
+    .modal .box .bd{padding:16px}
+    .table{width:100%; border-collapse: collapse; margin-top:10px; font-size:13px;}
+    .table th,.table td{border-bottom:1px solid rgba(255,255,255,.10); padding:10px 8px; text-align:left;}
+    .table th{color: rgba(233,238,255,.75); font-weight:750; font-size:12px; text-transform:uppercase; letter-spacing:.08em}
+    .kbd{font-family:var(--mono); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); padding:2px 6px; border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Jogo ABC da Nutrição — Análise Funcional</h1>
+        <div class="sub">No celular, você joga por etapas: escolha <b>A</b>, depois <b>B</b>, depois <b>C</b>. No computador, aparece tudo de uma vez.</div>
+      </div>
+      <div class="stats">
+        <div class="pill">Rodada <b id="round">1</b>/<b id="total">10</b></div>
+        <div class="pill">Pontos <b id="score">0</b></div>
+        <div class="pill">Acertos <b id="hits">0</b></div>
+        <button class="btn secondary" id="helpBtn" type="button">Regras</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Case -->
+      <section class="card" aria-live="polite">
+        <div class="hd">
+          <div>
+            <div class="badge" id="tag">Caso</div>
+            <div class="small" id="meta"></div>
+          </div>
+          <div class="kpi" id="timer">⏱️ Tempo: —</div>
+        </div>
+
+        <div class="case">
+          <div id="caseText"></div>
+          <div class="hint" id="caseHint"></div>
+
+          <div class="feedback" id="feedback">
+            <h3 id="fbTitle"></h3>
+            <p id="fbText"></p>
+            <p class="small" id="fbExtra"></p>
+          </div>
+
+          <!-- Sticky actionbar (mobile) is outside; desktop uses row below -->
+          <div class="row" id="desktopRow">
+            <button class="btn secondary" id="skipBtn" type="button">Pular</button>
+            <div style="display:flex; gap:10px; width:min(420px,100%);">
+              <button class="btn secondary" id="resetBtn" type="button" style="flex:1;">Reiniciar</button>
+              <button class="btn" id="submitBtn" type="button" disabled style="flex:1;">Conferir</button>
+              <button class="btn" id="nextBtn" type="button" style="display:none; flex:1;">Próximo</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Selection panel -->
+      <aside class="card">
+        <div class="hd">
+          <div>
+            <div class="badge">Selecione as opções</div>
+            <div class="small">Dica: descreva <b>B</b> como ação observável e <b>C</b> como efeito imediato.</div>
+          </div>
+          <div class="kpi">Atalhos: <span class="kbd">1</span> A · <span class="kbd">2</span> B · <span class="kbd">3</span> C</div>
+        </div>
+
+        <!-- Mobile tabs -->
+        <div class="tabs" role="tablist" aria-label="Etapas ABC">
+          <button class="tab active" id="tabA" role="tab" aria-selected="true">A (Antecedente)</button>
+          <button class="tab" id="tabB" role="tab" aria-selected="false">B (Comport.)</button>
+          <button class="tab" id="tabC" role="tab" aria-selected="false">C (Consequ.)</button>
+        </div>
+
+        <div class="panel">
+          <div class="block active" id="blockA">
+            <div class="lbl"><span>Antecedente (A)</span><span class="small" id="selA">—</span></div>
+            <div class="choices" id="choicesA"></div>
+          </div>
+
+          <div class="block" id="blockB">
+            <div class="lbl"><span>Comportamento (B)</span><span class="small" id="selB">—</span></div>
+            <div class="choices" id="choicesB"></div>
+          </div>
+
+          <div class="block" id="blockC">
+            <div class="lbl"><span>Consequência (C)</span><span class="small" id="selC">—</span></div>
+            <div class="choices" id="choicesC"></div>
+          </div>
+        </div>
+
+        <!-- Sticky actionbar (mobile only; hidden on desktop via media query) -->
+        <div class="actionbar" id="actionbar">
+          <button class="btn secondary" id="prevStepBtn" type="button">◀ Voltar</button>
+          <button class="btn secondary" id="nextStepBtn" type="button">Avançar ▶</button>
+          <button class="btn" id="submitBtnMobile" type="button" disabled>Conferir</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Help modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="box">
+      <div class="hd">
+        <div>
+          <div class="badge" id="mTitle">Regras rápidas</div>
+          <div class="small">ABC = Antecedente, Comportamento, Consequência</div>
+        </div>
+        <button class="btn secondary" id="closeBtn" type="button">Fechar</button>
+      </div>
+      <div class="bd">
+        <ul style="margin:0; padding-left:18px; color:rgba(233,238,255,.88); line-height:1.4;">
+          <li><b>A</b>: contexto/situação que aumenta a chance do comportamento.</li>
+          <li><b>B</b>: comportamento <b>observável</b> (o que a pessoa faz).</li>
+          <li><b>C</b>: consequência imediata que pode manter (prazer, alívio, evitar esforço/ansiedade, etc.).</li>
+          <li>Pontuação: <b>+10</b> por item correto (A, B, C). Total <b>30</b> por caso.</li>
+        </ul>
+        <table class="table" aria-label="Exemplo rápido">
+          <thead><tr><th>Exemplo</th><th>Resposta</th></tr></thead>
+          <tbody>
+            <tr><td>Chega cansada, vê doces na mesa.</td><td><b>A</b>: cansaço + doce disponível</td></tr>
+            <tr><td>Come doces rapidamente.</td><td><b>B</b>: ingestão impulsiva</td></tr>
+            <tr><td>Alívio imediato; culpa depois.</td><td><b>C</b>: alívio imediato mantém</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin:10px 0 0 0;">No celular: selecione A → avance → selecione B → avance → selecione C → conferir.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // --- Question bank (Nutrition-focused ABC vignettes) ---
+  const BANK = [
+    {
+      tag: "Comer emocional",
+      meta: "Adulto • consultório",
+      text: "Após uma reunião estressante, a paciente chega em casa, abre o armário e come biscoitos doces rapidamente, mesmo sem fome.",
+      hint: "Procure o gatilho imediato e o efeito de curto prazo.",
+      A: "Reunião estressante + sensação de tensão ao chegar em casa",
+      B: "Come biscoitos doces rapidamente, sem fome fisiológica",
+      C: "Alívio emocional imediato (reduz tensão) e sensação de conforto",
+      optsA: [
+        "Reunião estressante + sensação de tensão ao chegar em casa",
+        "Leu um artigo sobre alimentação saudável",
+        "Dormiu 9 horas na noite anterior",
+        "Recebeu elogio no trabalho"
+      ],
+      optsB: [
+        "Come biscoitos doces rapidamente, sem fome fisiológica",
+        "Planeja o cardápio da semana",
+        "Faz caminhada leve por 20 minutos",
+        "Bebe um copo d’água e espera"
+      ],
+      optsC: [
+        "Alívio emocional imediato (reduz tensão) e sensação de conforto",
+        "Aumento do vocabulário acadêmico",
+        "Ganha um desconto no supermercado",
+        "Sente uma dor muscular no dia seguinte"
+      ],
+      explain: "A consequência de curto prazo (alívio/conforto) pode manter o comportamento, mesmo que depois venha culpa."
+    },
+    {
+      tag: "Ambiente e disponibilidade",
+      meta: "Adulto • rotina",
+      text: "Toda vez que o paciente passa pela padaria no caminho do trabalho, ele compra salgados e refrigerante, apesar de ter levado lanche de casa.",
+      hint: "Pense em estímulos discriminativos e acesso fácil.",
+      A: "Passar em frente à padaria (cheiro/vitrine) + hábito do trajeto",
+      B: "Compra salgado e refrigerante no caminho do trabalho",
+      C: "Prazer imediato + praticidade (não precisa abrir o lanche levado)",
+      optsA: [
+        "Passar em frente à padaria (cheiro/vitrine) + hábito do trajeto",
+        "Ter feito academia ontem",
+        "Saber que ultraprocessados fazem mal",
+        "Ter comprado frutas no fim de semana"
+      ],
+      optsB: [
+        "Compra salgado e refrigerante no caminho do trabalho",
+        "Registra as refeições em um aplicativo",
+        "Prepara uma salada no jantar",
+        "Lê o rótulo nutricional com calma"
+      ],
+      optsC: [
+        "Prazer imediato + praticidade (não precisa abrir o lanche levado)",
+        "Redução do colesterol em 3 meses",
+        "Recebe uma ligação do médico",
+        "A padaria fecha no feriado"
+      ],
+      explain: "O contexto (padaria no trajeto) funciona como antecedente; a consequência imediata envolve reforço positivo (prazer) e negativo (evita esforço)."
+    },
+    {
+      tag: "Refeição infantil",
+      meta: "Criança • família",
+      text: "Na hora do jantar, a criança recusa a comida e chora. Para 'evitar briga', a mãe oferece um iogurte doce e libera o celular.",
+      hint: "Observe como a consequência afeta o comportamento da mãe e da criança.",
+      A: "Jantar servido + mãe pede para comer; criança percebe pressão",
+      B: "Recusa a comida e chora",
+      C: "Ganha iogurte doce e celular; mãe reduz conflito imediatamente",
+      optsA: [
+        "Jantar servido + mãe pede para comer; criança percebe pressão",
+        "A criança foi elogiada na escola",
+        "A mãe planejou o cardápio no domingo",
+        "A criança tomou água à tarde"
+      ],
+      optsB: [
+        "Recusa a comida e chora",
+        "Come a refeição completa e pede sobremesa",
+        "Ajuda a colocar a mesa",
+        "Dorme cedo e tranquilo"
+      ],
+      optsC: [
+        "Ganha iogurte doce e celular; mãe reduz conflito imediatamente",
+        "A criança cresce 2 cm no mês",
+        "O pediatra marca consulta para daqui a 6 meses",
+        "A família compra verduras na feira"
+      ],
+      explain: "A consequência reforça a recusa (a criança obtém itens preferidos) e também reforça o comportamento da mãe (alívio do conflito)."
+    },
+    {
+      tag: "Restrição → excesso",
+      meta: "Adulto • dieta restritiva",
+      text: "O paciente passa o dia comendo muito pouco para 'compensar'. À noite, sente muita fome e come grandes quantidades de pão e doces.",
+      hint: "Gatilho fisiológico + regra rígida costumam entrar aqui.",
+      A: "Longo período de restrição alimentar durante o dia",
+      B: "Episódio de comer em grande quantidade à noite (pão/doces)",
+      C: "Reduz fome intensa e sensação de privação (alívio) + prazer",
+      optsA: [
+        "Longo período de restrição alimentar durante o dia",
+        "Ter tomado sol pela manhã",
+        "Ter conversado com um amigo",
+        "Ter comprado uma garrafa d’água nova"
+      ],
+      optsB: [
+        "Episódio de comer em grande quantidade à noite (pão/doces)",
+        "Prepara marmitas para a semana",
+        "Bebe chá sem açúcar",
+        "Lava a louça do jantar"
+      ],
+      optsC: [
+        "Reduz fome intensa e sensação de privação (alívio) + prazer",
+        "Aprende um novo conteúdo de bioquímica",
+        "Recebe uma multa no trânsito",
+        "A academia muda o horário"
+      ],
+      explain: "A consequência imediata (redução de privação/fome + prazer) mantém o ciclo."
+    },
+    {
+      tag: "Ansiedade social",
+      meta: "Adulto • eventos",
+      text: "Em eventos sociais, o paciente fica ansioso e passa a beliscar o tempo todo. Ele diz que assim 'não precisa falar com ninguém'.",
+      hint: "Procure a função de evitar contato/ansiedade.",
+      A: "Evento social + aumento de ansiedade e desconforto",
+      B: "Belisca continuamente durante o evento",
+      C: "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
+      optsA: [
+        "Evento social + aumento de ansiedade e desconforto",
+        "Ter dormido bem na noite anterior",
+        "Ter feito compras no mercado",
+        "Ter lido um post sobre proteínas"
+      ],
+      optsB: [
+        "Belisca continuamente durante o evento",
+        "Pede informações ao anfitrião",
+        "Sai para caminhar no quarteirão",
+        "Bebe apenas água"
+      ],
+      optsC: [
+        "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
+        "Ganha massa muscular em 6 meses",
+        "O evento termina às 23h",
+        "Compra roupas novas depois"
+      ],
+      explain: "A consequência principal é reforço negativo: reduz ansiedade ao evitar contato."
+    },
+    {
+      tag: "Rotina e cansaço",
+      meta: "Adulto • adesão",
+      text: "Depois de um dia longo, a paciente chega sem energia e pede delivery. Ela diz que 'não dá' para cozinhar, mesmo tendo comida em casa.",
+      hint: "Antecedente pode ser fadiga + baixa disponibilidade de resposta.",
+      A: "Cansaço intenso ao chegar em casa + percepção de pouco tempo",
+      B: "Pede delivery em vez de preparar comida disponível",
+      C: "Economiza esforço/tempo e sente recompensa imediata (praticidade)",
+      optsA: [
+        "Cansaço intenso ao chegar em casa + percepção de pouco tempo",
+        "Ter bebido água durante o dia",
+        "Ter uma consulta marcada daqui a 2 semanas",
+        "Ter visto um documentário"
+      ],
+      optsB: [
+        "Pede delivery em vez de preparar comida disponível",
+        "Organiza a geladeira por categorias",
+        "Lê um capítulo do livro",
+        "Faz alongamento de 5 minutos"
+      ],
+      optsC: [
+        "Economiza esforço/tempo e sente recompensa imediata (praticidade)",
+        "Melhora a pressão arterial em 1 ano",
+        "O restaurante fecha no domingo",
+        "A paciente compra uma panela nova"
+      ],
+      explain: "A consequência imediata reduz demanda de esforço (reforço negativo) e oferece gratificação (reforço positivo)."
+    },
+    {
+      tag: "TV e beliscos",
+      meta: "Adulto • estímulos",
+      text: "À noite, vendo séries, o paciente sempre pega pipoca e refrigerante. Ele relata que 'só de ligar a TV já dá vontade'.",
+      hint: "A TV pode funcionar como estímulo discriminativo.",
+      A: "Ligar a TV/começar a série (rotina associada a comer)",
+      B: "Pega pipoca e refrigerante durante a série",
+      C: "Prazer sensorial + associação automática com entretenimento",
+      optsA: [
+        "Ligar a TV/começar a série (rotina associada a comer)",
+        "Ter feito exame de sangue",
+        "Ter tomado banho de manhã",
+        "Ter estudado estatística"
+      ],
+      optsB: [
+        "Pega pipoca e refrigerante durante a série",
+        "Vai dormir cedo",
+        "Organiza o armário",
+        "Faz compras on-line"
+      ],
+      optsC: [
+        "Prazer sensorial + associação automática com entretenimento",
+        "Redução do colesterol no próximo ano",
+        "Mudança de cidade no fim do ano",
+        "Aumento do preço do gás"
+      ],
+      explain: "O contexto (TV/série) sinaliza reforçamento histórico com comida; a consequência imediata é prazer."
+    }
+  ];
+
+  const TOTAL_ROUNDS = 10;
+  const TIME_LIMIT_SEC = 75;
+
+  // --- State ---
+  let order = [];
+  let idx = 0;
+  let score = 0;
+  let hits = 0;
+  let selected = {A:null, B:null, C:null};
+  let locked = false;
+  let timer = null;
+  let remaining = TIME_LIMIT_SEC;
+
+  // --- Elements ---
+  const elRound = document.getElementById("round");
+  const elTotal = document.getElementById("total");
+  const elScore = document.getElementById("score");
+  const elHits  = document.getElementById("hits");
+  const elTag   = document.getElementById("tag");
+  const elMeta  = document.getElementById("meta");
+  const elCase  = document.getElementById("caseText");
+  const elHint  = document.getElementById("caseHint");
+  const elChoicesA = document.getElementById("choicesA");
+  const elChoicesB = document.getElementById("choicesB");
+  const elChoicesC = document.getElementById("choicesC");
+  const elSelA = document.getElementById("selA");
+  const elSelB = document.getElementById("selB");
+  const elSelC = document.getElementById("selC");
+
+  const elSubmit = document.getElementById("submitBtn");
+  const elSubmitM = document.getElementById("submitBtnMobile");
+  const elNext = document.getElementById("nextBtn");
+  const elReset = document.getElementById("resetBtn");
+  const elSkip = document.getElementById("skipBtn");
+  const elTimer = document.getElementById("timer");
+
+  const fb = document.getElementById("feedback");
+  const fbTitle = document.getElementById("fbTitle");
+  const fbText = document.getElementById("fbText");
+  const fbExtra = document.getElementById("fbExtra");
+
+  const modal = document.getElementById("modal");
+  const helpBtn = document.getElementById("helpBtn");
+  const closeBtn = document.getElementById("closeBtn");
+
+  // Tabs/steps
+  const tabA = document.getElementById("tabA");
+  const tabB = document.getElementById("tabB");
+  const tabC = document.getElementById("tabC");
+  const blockA = document.getElementById("blockA");
+  const blockB = document.getElementById("blockB");
+  const blockC = document.getElementById("blockC");
+  const prevStepBtn = document.getElementById("prevStepBtn");
+  const nextStepBtn = document.getElementById("nextStepBtn");
+
+  elTotal.textContent = TOTAL_ROUNDS;
+
+  // --- Helpers ---
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  };
+
+  function stopTimer(){ if(timer){ clearInterval(timer); timer=null; } }
+  function startTimer(){
+    stopTimer();
+    remaining = TIME_LIMIT_SEC;
+    elTimer.textContent = `⏱️ Tempo: ${remaining}s`;
+    timer = setInterval(() => {
+      if(locked) return;
+      remaining--;
+      elTimer.textContent = `⏱️ Tempo: ${remaining}s`;
+      if(remaining <= 0){
+        stopTimer();
+        if(!locked){
+          locked = true;
+          showFeedback("⏳ Tempo!", "Tempo esgotado. Você pode seguir para o próximo caso (sem pontuar este).", "Dica: tente começar pela consequência (C) e depois volte para A e B.");
+          markAllNeutral();
+          disableActionsForLocked();
+          elNext.style.display = "inline-block";
+        }
+      }
+    }, 1000);
+  }
+
+  function resetSelections(){
+    selected = {A:null,B:null,C:null};
+    elSelA.textContent = "—";
+    elSelB.textContent = "—";
+    elSelC.textContent = "—";
+    setSubmitEnabled(false);
+    fb.classList.remove("show");
+  }
+
+  function canSubmit(){ return selected.A && selected.B && selected.C; }
+  function setSubmitEnabled(v){
+    elSubmit.disabled = !v;
+    elSubmitM.disabled = !v;
+  }
+
+  function setPill(which){
+    const map = {A:elSelA, B:elSelB, C:elSelC};
+    map[which].textContent = "selecionado";
+  }
+
+  function renderChoices(container, options, key){
+    container.innerHTML = "";
+    options.forEach(txt => {
+      const btn = document.createElement("button");
+      btn.className = "choice";
+      btn.type = "button";
+      btn.textContent = txt;
+      btn.dataset.key = key;
+      btn.dataset.value = txt;
+      btn.setAttribute("aria-pressed","false");
+      btn.addEventListener("click", () => {
+        if(locked) return;
+        [...container.querySelectorAll(".choice")].forEach(b => b.setAttribute("aria-pressed","false"));
+        btn.setAttribute("aria-pressed","true");
+        selected[key] = txt;
+        setPill(key);
+        setSubmitEnabled(canSubmit());
+
+        // Mobile UX: auto-advance to next step after selecting
+        if (isMobileLayout()){
+          if(key === "A") setStep(1);
+          if(key === "B") setStep(2);
+        }
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function showFeedback(title, text, extra=""){
+    fbTitle.textContent = title;
+    fbText.textContent = text;
+    fbExtra.textContent = extra;
+    fb.classList.add("show");
+    // bring feedback into view on mobile
+    if (isMobileLayout()){
+      fb.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  function markButtons(container, correctText, selectedText){
+    [...container.querySelectorAll(".choice")].forEach(b => {
+      const v = b.dataset.value;
+      b.classList.remove("ok","bad");
+      if(v === correctText) b.classList.add("ok");
+      if(selectedText && v === selectedText && selectedText !== correctText) b.classList.add("bad");
+    });
+  }
+  function markAllNeutral(){
+    [elChoicesA, elChoicesB, elChoicesC].forEach(c => {
+      [...c.querySelectorAll(".choice")].forEach(b => b.classList.remove("ok","bad"));
+    });
+  }
+
+  function disableActionsForLocked(){
+    setSubmitEnabled(false);
+    elSkip.disabled = true;
+    prevStepBtn.disabled = true;
+    nextStepBtn.disabled = true;
+  }
+  function enableActionsForUnlocked(){
+    elSkip.disabled = false;
+    prevStepBtn.disabled = false;
+    nextStepBtn.disabled = false;
+  }
+
+  function lockUI(){
+    locked = true;
+    disableActionsForLocked();
+    elNext.style.display = "inline-block";
+    stopTimer();
+  }
+  function unlockUI(){
+    locked = false;
+    enableActionsForUnlocked();
+    elNext.style.display = "none";
+  }
+
+  // --- Steps (mobile tabs) ---
+  let step = 0; // 0=A,1=B,2=C
+  function isMobileLayout(){
+    // tabs are hidden on desktop; easiest check is viewport width
+    return window.matchMedia("(max-width: 979px)").matches;
+  }
+  function setStep(s){
+    step = Math.max(0, Math.min(2, s));
+    const tabs = [tabA, tabB, tabC];
+    const blocks = [blockA, blockB, blockC];
+    tabs.forEach((t,i)=>{
+      t.classList.toggle("active", i===step);
+      t.setAttribute("aria-selected", i===step ? "true":"false");
+    });
+    blocks.forEach((b,i)=> b.classList.toggle("active", i===step));
+
+    prevStepBtn.disabled = locked || step === 0;
+    nextStepBtn.disabled = locked || step === 2;
+
+    // update mobile action primary button
+    // show Conferir only at step C, otherwise show Avançar highlighted
+    document.getElementById("submitBtnMobile").style.display = (step === 2) ? "inline-block" : "none";
+    nextStepBtn.style.display = (step === 2) ? "none" : "inline-block";
+  }
+
+  tabA.addEventListener("click", ()=> setStep(0));
+  tabB.addEventListener("click", ()=> setStep(1));
+  tabC.addEventListener("click", ()=> setStep(2));
+  prevStepBtn.addEventListener("click", ()=> setStep(step-1));
+  nextStepBtn.addEventListener("click", ()=> setStep(step+1));
+
+  // --- Game loop ---
+  function loadRound(){
+    unlockUI();
+    resetSelections();
+    markAllNeutral();
+
+    const q = order[idx];
+    elRound.textContent = String(idx+1);
+    elTag.textContent = `Caso ${idx+1} • ${q.tag}`;
+    elMeta.textContent = q.meta;
+    elCase.textContent = q.text;
+    elHint.textContent = `Dica: ${q.hint}`;
+
+    renderChoices(elChoicesA, shuffle(q.optsA), "A");
+    renderChoices(elChoicesB, shuffle(q.optsB), "B");
+    renderChoices(elChoicesC, shuffle(q.optsC), "C");
+
+    setStep(0);
+    startTimer();
+  }
+
+  function gradeRound(){
+    const q = order[idx];
+    const results = {A: selected.A === q.A, B: selected.B === q.B, C: selected.C === q.C};
+
+    const gained = (results.A?10:0) + (results.B?10:0) + (results.C?10:0);
+    score += gained;
+    hits += (results.A?1:0) + (results.B?1:0) + (results.C?1:0);
+
+    elScore.textContent = String(score);
+    elHits.textContent = String(hits);
+
+    markButtons(elChoicesA, q.A, selected.A);
+    markButtons(elChoicesB, q.B, selected.B);
+    markButtons(elChoicesC, q.C, selected.C);
+
+    const correctCount = (results.A?1:0) + (results.B?1:0) + (results.C?1:0);
+    const title = correctCount === 3 ? "✅ Perfeito!" :
+                  (correctCount === 2 ? "🟡 Quase lá!" :
+                  (correctCount === 1 ? "🟠 Vamos ajustar!" : "🔴 Vamos revisar!"));
+
+    showFeedback(title, `Você acertou ${correctCount}/3 itens e ganhou ${gained} pontos.`, `Explicação: ${q.explain}`);
+    lockUI();
+
+    // After grading, jump to C to show the final block
+    setStep(2);
+  }
+
+  function finishGame(){
+    stopTimer();
+    const maxScore = TOTAL_ROUNDS * 30;
+    const pct = Math.round((score / maxScore) * 100);
+    showFeedback("🏁 Fim do jogo!",
+      `Pontuação final: ${score}/${maxScore} (${pct}%). Acertos (itens A/B/C): ${hits}/${TOTAL_ROUNDS*3}.`,
+      "Sugestão: refaça tentando começar pela consequência (C). Depois descreva A e B com termos observáveis.");
+    elNext.style.display = "none";
+    elSkip.disabled = true;
+    setSubmitEnabled(false);
+  }
+
+  function startGame(){
+    const picked = shuffle(BANK);
+    order = [];
+    for(let i=0;i<TOTAL_ROUNDS;i++) order.push(picked[i % picked.length]);
+    idx = 0;
+    score = 0;
+    hits = 0;
+    elScore.textContent = "0";
+    elHits.textContent = "0";
+    elSkip.disabled = false;
+    loadRound();
+  }
+
+  // Buttons
+  elSubmit.addEventListener("click", ()=> { if(!locked && canSubmit()) gradeRound(); });
+  elSubmitM.addEventListener("click", ()=> { if(!locked && canSubmit()) gradeRound(); });
+
+  elReset.addEventListener("click", ()=> startGame());
+
+  elNext.addEventListener("click", ()=> {
+    if(idx < TOTAL_ROUNDS-1){ idx++; loadRound(); }
+    else finishGame();
+  });
+
+  elSkip.addEventListener("click", ()=> {
+    if(locked) return;
+    locked = true;
+    stopTimer();
+    showFeedback("⏭️ Caso pulado", "Você pulou este caso (0 pontos). Vá para o próximo.", "Dica: tente identificar primeiro a consequência imediata (C).");
+    disableActionsForLocked();
+    elNext.style.display = "inline-block";
+  });
+
+  // Modal
+  helpBtn.addEventListener("click", ()=> modal.classList.add("show"));
+  closeBtn.addEventListener("click", ()=> modal.classList.remove("show"));
+  modal.addEventListener("click", (e)=> { if(e.target === modal) modal.classList.remove("show"); });
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    if(modal.classList.contains("show")){
+      if(e.key === "Escape") modal.classList.remove("show");
+      return;
+    }
+    if(e.key === "1") setStep(0);
+    if(e.key === "2") setStep(1);
+    if(e.key === "3") setStep(2);
+    if(e.key === "Enter" && !elSubmit.disabled) elSubmit.click();
+    if(e.key === "Escape" && elNext.style.display !== "none") elNext.click();
+  });
+
+  // Re-apply step layout on resize (switching mobile/desktop)
+  window.addEventListener("resize", ()=> {
+    // Keep step visible and update button visibility
+    setStep(step);
+  });
+
+  // Start
+  startGame();
+})();
+</script>
+</body>
+</html>
