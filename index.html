@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Jogo ABC da Nutrição — Análise Funcional (Mobile)</title>
+  <title>Jogo ABC da Nutrição — Análise Funcional (Multi-casos)</title>
   <style>
     :root{
       --bg:#0b1020; --text:#e9eeff;
@@ -11,6 +11,7 @@
       --radius: 16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --blue:#2b3cff;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -25,22 +26,18 @@
       min-height:100vh;
       padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
                max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-      display:flex;
-      align-items:stretch;
-      justify-content:center;
+      display:flex; justify-content:center;
     }
-    .wrap{width:min(1050px, 100%); display:grid; gap:12px; align-content:start}
+    .wrap{width:min(980px, 100%); display:grid; gap:12px; align-content:start}
     header{
       padding:14px 14px;
       border-radius: var(--radius);
       background: linear-gradient(180deg, #121a37, #0f1633);
       box-shadow: var(--shadow);
       border: 1px solid rgba(255,255,255,.06);
-      display:grid;
-      gap:10px;
+      display:grid; gap:10px;
     }
     header h1{margin:0; font-size:16px; letter-spacing:.2px}
-    header .sub{color:rgba(233,238,255,.75); font-size:12.5px; line-height:1.3}
     .stats{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
     .pill{
       background: rgba(255,255,255,.06);
@@ -51,10 +48,10 @@
       color: rgba(233,238,255,.85);
       display:flex; gap:6px; align-items:center;
     }
-    .pill b{font-family:var(--mono); font-weight:700; color:var(--text)}
+    .pill b{font-family:var(--mono); font-weight:800; color:var(--text)}
     .btn{
       border:none; cursor:pointer; border-radius: 12px;
-      padding:10px 12px; font-weight:700; letter-spacing:.2px;
+      padding:10px 12px; font-weight:800; letter-spacing:.2px;
       background: linear-gradient(180deg, rgba(43,60,255,.95), rgba(43,60,255,.75));
       color:white;
       box-shadow: 0 8px 18px rgba(43,60,255,.25);
@@ -67,12 +64,8 @@
       border: 1px solid rgba(255,255,255,.12);
       box-shadow:none;
     }
-    main{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-      align-content:start;
-    }
+
+    main{display:grid; grid-template-columns:1fr; gap:12px}
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
       border: 1px solid rgba(255,255,255,.08);
@@ -97,19 +90,14 @@
     .small{font-size:12px; color: rgba(233,238,255,.7)}
     .kpi{font-family:var(--mono); font-size:12px; color: rgba(233,238,255,.9)}
     .case{padding:14px; font-size:15px; line-height:1.35}
-    .hint{margin-top:10px; color: rgba(233,238,255,.75); font-size:13px}
 
-    /* Mobile tabs */
+    /* Tabs (mobile-first) */
     .tabs{
-      display:flex;
-      gap:8px;
+      display:flex; gap:8px;
       padding:10px 10px 0 10px;
       background: rgba(0,0,0,.10);
       border-bottom: 1px solid rgba(255,255,255,.08);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(8px);
+      position: sticky; top:0; z-index: 10; backdrop-filter: blur(8px);
     }
     .tab{
       flex:1;
@@ -118,18 +106,15 @@
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(22,34,74,.55);
       color: rgba(233,238,255,.92);
-      font-weight:800;
+      font-weight:900;
       font-size:12px;
       text-align:center;
       cursor:pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-    .tab.active{
-      background: rgba(43,60,255,.35);
-      border-color: rgba(43,60,255,.55);
-    }
-    .panel{padding:12px 14px;}
+    .tab.active{background: rgba(43,60,255,.35); border-color: rgba(43,60,255,.55)}
+    .panel{padding:12px 14px}
     .block{
       background: rgba(0,0,0,.12);
       border: 1px solid rgba(255,255,255,.08);
@@ -165,12 +150,6 @@
     .choice.ok{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.45)}
     .choice.bad{background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.45)}
 
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      margin-top:12px;
-    }
-    .row .btn{flex:1; min-width: 140px}
-
     .feedback{
       margin-top:12px;
       border-radius: 14px;
@@ -183,7 +162,7 @@
     .feedback h3{margin:0 0 6px 0; font-size:14px}
     .feedback p{margin:0; color: rgba(233,238,255,.85); font-size:13px; line-height:1.35}
 
-    /* Sticky action bar (mobile) */
+    /* Sticky action bar */
     .actionbar{
       position: sticky;
       bottom: 0;
@@ -196,18 +175,16 @@
       gap:10px;
     }
     .actionbar .btn{flex:1}
-    .actionbar .btn.secondary{flex:.9}
+    .actionbar .btn.secondary{flex:.95}
 
-    /* Desktop: show side-by-side and all blocks */
+    /* Desktop enhancement */
     @media (min-width: 980px){
       main{grid-template-columns: 1.1fr .9fr}
       .tabs{display:none}
       .block{display:block}
       .block.active{display:block}
       .actionbar{display:none}
-      header{
-        display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-      }
+      header{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
       .stats{justify-content:flex-end}
     }
 
@@ -232,9 +209,6 @@
       background: rgba(0,0,0,.12);
     }
     .modal .box .bd{padding:16px}
-    .table{width:100%; border-collapse: collapse; margin-top:10px; font-size:13px;}
-    .table th,.table td{border-bottom:1px solid rgba(255,255,255,.10); padding:10px 8px; text-align:left;}
-    .table th{color: rgba(233,238,255,.75); font-weight:750; font-size:12px; text-transform:uppercase; letter-spacing:.08em}
     .kbd{font-family:var(--mono); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); padding:2px 6px; border-radius:8px}
   </style>
 </head>
@@ -243,10 +217,9 @@
     <header>
       <div>
         <h1>Jogo ABC da Nutrição — Análise Funcional</h1>
-        <div class="sub">No celular, jogue por etapas: escolha <b>A</b> → <b>B</b> → <b>C</b>. Todas as alternativas são plausíveis (o erro é por função, não por absurdo).</div>
       </div>
       <div class="stats">
-        <div class="pill">Rodada <b id="round">1</b>/<b id="total">10</b></div>
+        <div class="pill">Caso <b id="round">1</b>/<b id="total">8</b></div>
         <div class="pill">Pontos <b id="score">0</b></div>
         <div class="pill">Acertos <b id="hits">0</b></div>
         <button class="btn secondary" id="helpBtn" type="button">Regras</button>
@@ -266,7 +239,6 @@
 
         <div class="case">
           <div id="caseText"></div>
-          <div class="hint" id="caseHint"></div>
 
           <div class="feedback" id="feedback">
             <h3 id="fbTitle"></h3>
@@ -274,31 +246,27 @@
             <p class="small" id="fbExtra"></p>
           </div>
 
-          <div class="row" id="desktopRow">
-            <button class="btn secondary" id="skipBtn" type="button">Pular</button>
-            <div style="display:flex; gap:10px; width:min(420px,100%);">
-              <button class="btn secondary" id="resetBtn" type="button" style="flex:1;">Reiniciar</button>
-              <button class="btn" id="submitBtn" type="button" disabled style="flex:1;">Conferir</button>
-              <button class="btn" id="nextBtn" type="button" style="display:none; flex:1;">Próximo</button>
-            </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn secondary" id="skipBtn" type="button" style="flex:1; min-width:160px;">Pular</button>
+            <button class="btn secondary" id="resetBtn" type="button" style="flex:1; min-width:160px;">Reiniciar</button>
+            <button class="btn" id="nextBtn" type="button" style="display:none; flex:1; min-width:160px;">Próximo</button>
           </div>
         </div>
       </section>
 
-      <!-- Selection panel -->
+      <!-- Selection -->
       <aside class="card">
         <div class="hd">
           <div>
             <div class="badge">Selecione as opções</div>
-            <div class="small">Dica: <b>B</b> é ação observável. <b>C</b> é efeito imediato (prazer/alívio/evitação/atenção).</div>
+            <div class="small">Atalhos: <span class="kbd">1</span> A · <span class="kbd">2</span> B · <span class="kbd">3</span> C</div>
           </div>
-          <div class="kpi">Atalhos: <span class="kbd">1</span> A · <span class="kbd">2</span> B · <span class="kbd">3</span> C</div>
         </div>
 
         <div class="tabs" role="tablist" aria-label="Etapas ABC">
-          <button class="tab active" id="tabA" role="tab" aria-selected="true">A (Anteced.)</button>
-          <button class="tab" id="tabB" role="tab" aria-selected="false">B (Comport.)</button>
-          <button class="tab" id="tabC" role="tab" aria-selected="false">C (Consequ.)</button>
+          <button class="tab active" id="tabA" role="tab" aria-selected="true">A</button>
+          <button class="tab" id="tabB" role="tab" aria-selected="false">B</button>
+          <button class="tab" id="tabC" role="tab" aria-selected="false">C</button>
         </div>
 
         <div class="panel">
@@ -338,287 +306,244 @@
         <button class="btn secondary" id="closeBtn" type="button">Fechar</button>
       </div>
       <div class="bd">
-        <ul style="margin:0; padding-left:18px; color:rgba(233,238,255,.88); line-height:1.4;">
-          <li><b>A</b>: contexto que aumenta a chance do comportamento (gatilho, ambiente, emoção, rotina, estímulo discriminativo).</li>
-          <li><b>B</b>: comportamento <b>observável</b> (o que a pessoa faz).</li>
-          <li><b>C</b>: efeito <b>imediato</b> que pode manter (prazer, alívio, evitação, atenção, praticidade).</li>
-          <li>Pontuação: <b>+10</b> por item correto (A, B, C). Total <b>30</b> por caso.</li>
+        <ul style="margin:0; padding-left:18px; color:rgba(233,238,255,.88); line-height:1.45;">
+          <li><b>A</b>: situação/condição imediata (contexto, emoção, estímulo, pessoas, rotina).</li>
+          <li><b>B</b>: ação observável (o que a pessoa faz).</li>
+          <li><b>C</b>: o que acontece logo depois e tende a manter (prazer, alívio, evitar desconforto, atenção).</li>
+          <li>Pontos: <b>+10</b> por item correto (A, B, C). Total <b>30</b> por caso.</li>
         </ul>
-        <table class="table" aria-label="Exemplo rápido">
-          <thead><tr><th>Exemplo</th><th>Resposta</th></tr></thead>
-          <tbody>
-            <tr><td>Chega cansada, vê doces na mesa.</td><td><b>A</b>: cansaço + doce disponível</td></tr>
-            <tr><td>Come doces rapidamente.</td><td><b>B</b>: ingestão impulsiva</td></tr>
-            <tr><td>Alívio imediato; culpa depois.</td><td><b>C</b>: alívio imediato mantém</td></tr>
-          </tbody>
-        </table>
-        <p class="small" style="margin:10px 0 0 0;">No celular: selecione A → avance → selecione B → avance → selecione C → conferir.</p>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
-  // ✅ Banco refeito: TODAS as alternativas são plausíveis e próximas da cena (erro = por função).
+  // =======================
+  // BANCO DE CASOS (com nomes nos textos)
+  // =======================
   const BANK = [
     {
+      tag: "Rotina + belisco",
+      meta: "Rafaela (29) • hábito noturno",
+      text: "Rafaela chega do trabalho, toma banho e liga a TV para assistir uma série. Quase sem perceber, ela pega pipoca e refrigerante e consome durante o episódio.",
+      A: "Ligar a TV e iniciar a série (rotina historicamente associada a comer)",
+      B: "Pega pipoca e refrigerante e consome durante a série",
+      C: "Prazer sensorial + associação com entretenimento (reforço imediato)",
+      optsA: [
+        "Ligar a TV e iniciar a série (rotina historicamente associada a comer)",
+        "Sentar no sofá após o banho e preparar o ambiente para relaxar",
+        "Estar em casa à noite com pouca demanda de tarefas",
+        "Sentir vontade de desligar a mente depois do dia"
+      ],
+      optsB: [
+        "Pega pipoca e refrigerante e consome durante a série",
+        "Belisca pequenas porções ao longo do episódio",
+        "Levanta para buscar algo para comer no meio do episódio",
+        "Come algum alimento enquanto assiste, mesmo sem fome clara"
+      ],
+      optsC: [
+        "Prazer sensorial + associação com entretenimento (reforço imediato)",
+        "Sensação imediata de relaxamento e “desligamento”",
+        "Redução momentânea do tédio/monotonia do episódio",
+        "Sensação de recompensa por “merecer algo gostoso”"
+      ],
+      explain: "A consequência mantenedora central tende a ser o ganho imediato (prazer/associação com entretenimento)."
+    },
+    {
       tag: "Comer emocional",
-      meta: "Adulto • consultório",
-      text: "Após uma reunião estressante, a paciente chega em casa, abre o armário e come biscoitos doces rapidamente, mesmo sem fome.",
-      hint: "Procure o gatilho imediato e o efeito de curto prazo (o que mantém o padrão).",
-      A: "Vivenciar uma reunião estressante e chegar em casa com tensão/ansiedade",
-      B: "Come biscoitos doces rapidamente, mesmo sem fome fisiológica",
-      C: "Sente alívio emocional imediato e conforto momentâneo",
+      meta: "Larissa (34) • pós-estresse",
+      text: "Larissa sai de uma reunião tensa no trabalho. Ao chegar em casa, abre o armário e come doces rapidamente, apesar de dizer que não estava com fome.",
+      A: "Reunião tensa + aumento de tensão/irritação ao chegar em casa",
+      B: "Come doces rapidamente sem fome fisiológica clara",
+      C: "Alívio emocional imediato da tensão (reduz desconforto)",
       optsA: [
-        "Vivenciar uma reunião estressante e chegar em casa com tensão/ansiedade",
-        "Chegar em casa no fim do dia e ficar sozinho por alguns minutos",
-        "Sentir cansaço físico e querer relaxar depois do trabalho",
-        "Ver biscoitos doces disponíveis no armário/cozinha ao entrar"
+        "Reunião tensa + aumento de tensão/irritação ao chegar em casa",
+        "Chegar em casa e ver alimentos palatáveis disponíveis no armário",
+        "Ficar sozinha em casa, sem alguém para conversar naquele momento",
+        "Sentir cansaço e sobrecarga mental no fim do dia"
       ],
       optsB: [
-        "Come biscoitos doces rapidamente, mesmo sem fome fisiológica",
-        "Belisca pequenas porções enquanto anda pela cozinha",
-        "Come fora do planejado e repete porções à noite",
-        "Vai para a cozinha e procura algo doce para comer"
+        "Come doces rapidamente sem fome fisiológica clara",
+        "Come fora do plano alimentar no período da noite",
+        "Belisca alimentos em pé na cozinha por alguns minutos",
+        "Come em maior quantidade do que pretendia naquele momento"
       ],
       optsC: [
-        "Sente alívio emocional imediato e conforto momentâneo",
-        "Reduz momentaneamente pensamentos estressantes (distração)",
-        "Sente prazer sensorial imediato (sabor) e relaxamento",
-        "Diminui a tensão corporal no curto prazo"
+        "Alívio emocional imediato da tensão (reduz desconforto)",
+        "Sensação de conforto/acolhimento momentâneo",
+        "Distração dos pensamentos sobre a reunião",
+        "Diminuição temporária da irritação e da inquietação"
       ],
-      explain: "O comportamento pode se manter porque produz alívio/conforto imediato (reforço negativo/positivo), mesmo que depois venha culpa."
-    },
-    {
-      tag: "Padaria no caminho",
-      meta: "Adulto • rotina",
-      text: "No caminho do trabalho, sempre que passa pela padaria, o paciente compra salgado e refrigerante, apesar de ter levado lanche de casa.",
-      hint: "Pense em estímulos do ambiente e em consequências imediatas (prazer/praticidade).",
-      A: "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
-      B: "Compra salgado e refrigerante na padaria antes de chegar ao trabalho",
-      C: "Sente prazer imediato e praticidade (evita esforço de usar o lanche levado)",
-      optsA: [
-        "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
-        "Estar com fome moderada perto do horário do lanche",
-        "Ver colegas entrando na padaria no mesmo horário",
-        "Ter o dinheiro/forma de pagamento fácil no momento"
-      ],
-      optsB: [
-        "Compra salgado e refrigerante na padaria antes de chegar ao trabalho",
-        "Entra na padaria e escolhe um item para comer na hora",
-        "Adia o lanche levado e decide comer algo comprado",
-        "Compra algo pronto para consumir rapidamente no caminho"
-      ],
-      optsC: [
-        "Sente prazer imediato e praticidade (evita esforço de usar o lanche levado)",
-        "Reduz a fome rapidamente e mantém o ritmo do trajeto",
-        "Sente recompensa por 'se presentear' após um início de dia difícil",
-        "Evita a sensação de privação e a ideia de 'lanche sem graça'"
-      ],
-      explain: "O ambiente funciona como estímulo discriminativo; a consequência tende a combinar prazer (reforço positivo) e economia de esforço/tempo (reforço negativo)."
-    },
-    {
-      tag: "Jantar infantil",
-      meta: "Criança • família",
-      text: "Na hora do jantar, a criança recusa a comida e chora. Para evitar briga, a mãe oferece um iogurte doce e libera o celular.",
-      hint: "Observe efeitos imediatos para a criança e para o cuidador.",
-      A: "Início do jantar com exigência para comer um alimento pouco preferido",
-      B: "Recusa a comida e chora na mesa",
-      C: "Acessa iogurte doce e celular; conflito/pressão diminuem imediatamente",
-      optsA: [
-        "Início do jantar com exigência para comer um alimento pouco preferido",
-        "Criança percebe que o cuidador está insistindo/pressionando",
-        "Criança está cansada e com baixa tolerância à frustração no fim do dia",
-        "Criança está com fome, mas quer controlar o que vai comer"
-      ],
-      optsB: [
-        "Recusa a comida e chora na mesa",
-        "Afasta o prato e faz careta para o alimento",
-        "Diz 'não quero' repetidas vezes e aumenta o tom de voz",
-        "Se levanta da mesa e tenta sair do jantar"
-      ],
-      optsC: [
-        "Acessa iogurte doce e celular; conflito/pressão diminuem imediatamente",
-        "Ganha alternativa mais palatável e evita o alimento do jantar",
-        "Recebe atenção imediata e negociação por parte do cuidador",
-        "A mãe sente alívio do conflito e encerra a insistência naquele momento"
-      ],
-      explain: "A recusa pode ser mantida por acesso a itens preferidos (reforço positivo) e/ou por fuga da pressão (reforço negativo). Também pode reforçar o comportamento do cuidador (alívio ao evitar briga)."
+      explain: "Consequências imediatas (alívio/conforto/distração) têm mais peso para manter o comportamento do que consequências tardias (culpa)."
     },
     {
       tag: "Restrição → excesso",
-      meta: "Adulto • dieta restritiva",
-      text: "O paciente passa o dia comendo muito pouco para 'compensar'. À noite, sente muita fome e come grandes quantidades de pão e doces.",
-      hint: "Antecedente pode incluir privação fisiológica e regras rígidas.",
-      A: "Passar o dia em restrição alimentar (privação) para 'compensar'",
-      B: "À noite, come grandes quantidades de pão e doces",
-      C: "Reduz fome intensa e sensação de privação, com prazer imediato",
+      meta: "Bruno (27) • ciclo de dieta rígida",
+      text: "Bruno passa o dia comendo muito pouco para “compensar”. À noite, chega faminto e come grandes quantidades de pão e doces.",
+      A: "Longo período de restrição alimentar durante o dia (privação)",
+      B: "Come grande quantidade de pão e doces à noite",
+      C: "Reduz a sensação de privação/fome intensa e gera prazer imediato",
       optsA: [
-        "Passar o dia em restrição alimentar (privação) para 'compensar'",
-        "Longo intervalo entre refeições e pouca disponibilidade de opções práticas",
-        "Terminar o dia com cansaço e pouca energia para preparar refeição planejada",
-        "Pensar que 'já estragou a dieta' depois de um pequeno deslize"
+        "Longo período de restrição alimentar durante o dia (privação)",
+        "Ficar muitas horas sem pausa no trabalho e adiar refeições",
+        "Pensar que “já estragou a dieta” ao sentir fome no fim do dia",
+        "Chegar em casa tarde com muita fome e pouca energia para preparar comida"
       ],
       optsB: [
-        "À noite, come grandes quantidades de pão e doces",
-        "Come rápido e repete porções quando chega em casa",
-        "Abre vários alimentos disponíveis e alterna entre eles",
-        "Come até sentir desconforto físico, apesar de querer parar"
+        "Come grande quantidade de pão e doces à noite",
+        "Come rápido e repete porções no jantar",
+        "Come alimentos palatáveis fora do planejado em curto período",
+        "Come até sentir desconforto por excesso"
       ],
       optsC: [
-        "Reduz fome intensa e sensação de privação, com prazer imediato",
-        "Sente alívio por 'finalmente comer' depois de um dia difícil",
-        "Diminui temporariamente ansiedade/irritação do fim do dia",
-        "Evita a tarefa de cozinhar e resolve a fome rapidamente"
+        "Reduz a sensação de privação/fome intensa e gera prazer imediato",
+        "Sensação imediata de “repor energia” e aliviar fraqueza",
+        "Queda rápida da ansiedade ligada à fome e à regra rígida",
+        "Sensação de alívio por finalmente comer após segurar o dia inteiro"
       ],
-      explain: "O ciclo pode se manter porque o episódio noturno produz alívio imediato da privação e recompensa sensorial, reforçando o padrão."
+      explain: "O alívio da privação é muito reforçador no curto prazo e mantém o ciclo restrição → excesso."
     },
     {
-      tag: "Ansiedade social",
-      meta: "Adulto • eventos",
-      text: "Em eventos sociais, o paciente fica ansioso e passa a beliscar o tempo todo. Ele diz que assim 'não precisa falar com ninguém'.",
-      hint: "Procure função de fuga/evitação e/ou regulação emocional.",
-      A: "Estar em evento social e sentir aumento de ansiedade/desconforto",
-      B: "Belisca continuamente durante o evento",
-      C: "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
+      tag: "Delivery por cansaço",
+      meta: "Neide (41) • adesão e rotina",
+      text: "Neide chega em casa exausta. Apesar de ter comida, ela pede delivery porque sente que não consegue cozinhar naquele momento.",
+      A: "Chegar em casa exausta + percepção de pouco tempo/energia",
+      B: "Pede delivery em vez de preparar a comida que já tem",
+      C: "Economiza esforço e reduz estresse de decidir/cozinhar (alívio imediato)",
       optsA: [
-        "Estar em evento social e sentir aumento de ansiedade/desconforto",
-        "Não saber com quem conversar e ficar sem um 'papel' definido no ambiente",
-        "Perceber olhares/autoavaliação e medo de julgamento",
-        "Estar perto da mesa de comida e ter fácil acesso aos petiscos"
+        "Chegar em casa exausta + percepção de pouco tempo/energia",
+        "Abrir a geladeira e perceber que precisa organizar/preparar",
+        "Sentir a casa bagunçada e achar que cozinhar vai “dar mais trabalho”",
+        "Pensar que cozinhar agora vai atrasar o descanso"
       ],
       optsB: [
-        "Belisca continuamente durante o evento",
-        "Come pequenas porções repetidas vezes ao longo da conversa",
-        "Fica comendo para ocupar as mãos e o tempo",
-        "Pega algo para comer sempre que fica em silêncio"
+        "Pede delivery em vez de preparar a comida que já tem",
+        "Abre aplicativo e escolhe uma refeição pronta rapidamente",
+        "Adia o preparo e faz um pedido pronto para entrega",
+        "Opta por comida pronta mesmo com itens disponíveis em casa"
       ],
       optsC: [
-        "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
-        "Sente alívio por ter uma 'atividade' e não precisar falar",
-        "Diminui a autopercepção desconfortável ao se distrair com a comida",
-        "Recebe comentários/atenção por estar comendo (o que pode manter)"
+        "Economiza esforço e reduz estresse de decidir/cozinhar (alívio imediato)",
+        "Sensação imediata de recompensa/agrado por comer algo gostoso",
+        "Alívio por não precisar cozinhar e lavar louça naquele momento",
+        "Redução de tensão ao resolver rápido a refeição"
       ],
-      explain: "O beliscar pode funcionar como estratégia de evitação social e regulação emocional, sendo reforçado negativamente (reduz ansiedade) e às vezes positivamente (atenção)."
+      explain: "A função pode envolver reforço negativo (evitar esforço/sobrecarga) e, às vezes, reforço positivo (prazer)."
     },
     {
-      tag: "Delivery no cansaço",
-      meta: "Adulto • adesão",
-      text: "Depois de um dia longo, a paciente chega sem energia e pede delivery. Ela diz que 'não dá' para cozinhar, mesmo tendo comida em casa.",
-      hint: "Cansaço e demanda de esforço costumam aumentar comportamento de escolha por praticidade.",
-      A: "Chegar em casa cansada e com pouca energia/tempo percebido",
-      B: "Pede delivery em vez de preparar comida disponível",
-      C: "Economiza esforço e obtém alívio imediato (praticidade/recompensa)",
+      tag: "Criança na refeição",
+      meta: "Davi (6) e Juliana (mãe) • seletividade",
+      text: "No jantar, Juliana oferece arroz, feijão e salada para Davi. Ele recusa, chora e empurra o prato. Para evitar conflito, Juliana dá iogurte doce e libera o celular.",
+      A: "Oferta de alimento pouco preferido + pressão/insistência para comer",
+      B: "Davi recusa, chora e empurra o prato",
+      C: "Acesso a iogurte doce/celular e redução do conflito (alívio imediato)",
       optsA: [
-        "Chegar em casa cansada e com pouca energia/tempo percebido",
-        "Perceber a cozinha desorganizada e antecipar a tarefa como 'grande'",
-        "Estar com fome e querer uma solução rápida",
-        "Abrir o aplicativo de delivery e ver promoções/combos no horário"
+        "Oferta de alimento pouco preferido + pressão/insistência para comer",
+        "Início do jantar com expectativa de comer o que foi servido",
+        "Presença da mãe observando e pedindo para experimentar",
+        "Rotina de refeição em que o alimento preferido costuma aparecer depois"
       ],
       optsB: [
-        "Pede delivery em vez de preparar comida disponível",
-        "Abre o aplicativo e finaliza o pedido rapidamente",
-        "Escolhe comida pronta para 'resolver' o jantar sem preparo",
-        "Decide por refeição pronta após olhar a geladeira"
+        "Davi recusa, chora e empurra o prato",
+        "Davi faz careta e vira o rosto para a comida",
+        "Davi tenta sair da mesa e reclama alto",
+        "Davi insiste que quer outro alimento no lugar"
       ],
       optsC: [
-        "Economiza esforço e obtém alívio imediato (praticidade/recompensa)",
-        "Reduz a sensação de sobrecarga ao evitar cozinhar e lavar louça",
-        "Sente prazer imediato por comer algo palatável",
-        "Evita lidar com decisões alimentares (reduz demanda mental)"
+        "Acesso a iogurte doce/celular e redução do conflito (alívio imediato)",
+        "Atenção imediata da mãe, mesmo que em forma de negociação",
+        "Interrupção da exigência de comer a refeição principal",
+        "Alívio momentâneo da tensão para mãe e criança"
       ],
-      explain: "O comportamento pode se manter por reforço negativo (evitar esforço/sobrecarga) e reforço positivo (prazer/sabor)."
+      explain: "A consequência pode reforçar a recusa (ganho de itens preferidos) e também reforçar o cuidador (alívio ao encerrar conflito)."
     },
     {
-      tag: "Proibição rígida",
-      meta: "Adulto • regras alimentares",
-      text: "O paciente cria a regra 'nunca posso comer chocolate'. Após um dia difícil, ele come chocolate escondido e depois se culpa.",
-      hint: "Regras rígidas podem aumentar privação e tornar o item mais 'atrativo'.",
-      A: "Dia difícil + regra rígida de proibição e sensação de privação",
-      B: "Come chocolate escondido",
-      C: "Prazer/alívio imediato; a culpa vem depois (tardia)",
+      tag: "Recaída social",
+      meta: "Marcos (36) • fim de semana",
+      text: "Após duas semanas seguindo o plano alimentar, Marcos vai a um churrasco. Ele se sente observado, fica ansioso e começa a beber refrigerante e comer sem parar, dizendo depois: “já era mesmo”.",
+      A: "Churrasco + ansiedade/pressão social + pensamentos de “tudo ou nada”",
+      B: "Come e bebe em excesso no evento (padrão de perda de controle)",
+      C: "Alívio imediato da ansiedade social e sensação de ‘se soltar’ no grupo",
       optsA: [
-        "Dia difícil + regra rígida de proibição e sensação de privação",
-        "Estar sozinho em casa e ter chocolate disponível no armário",
-        "Sentir ansiedade e buscar algo para aliviar no momento",
-        "Pensar 'já falhei hoje mesmo' após pequena quebra do plano"
+        "Churrasco + ansiedade/pressão social + pensamentos de “tudo ou nada”",
+        "Ver muitas opções palatáveis e cheiros fortes no ambiente",
+        "Perceber que outras pessoas estão comendo livremente",
+        "Pensar que será difícil se controlar e que vai falhar"
       ],
       optsB: [
-        "Come chocolate escondido",
-        "Come um pedaço e volta para buscar mais",
-        "Come rápido e tenta 'compensar' depois mentalmente",
-        "Vai até a cozinha especificamente para pegar chocolate"
+        "Come e bebe em excesso no evento (padrão de perda de controle)",
+        "Belisca continuamente ao longo da conversa",
+        "Repete porções e aumenta a velocidade ao comer",
+        "Come e bebe mesmo quando já está satisfeito"
       ],
       optsC: [
-        "Prazer/alívio imediato; a culpa vem depois (tardia)",
-        "Reduz desconforto emocional momentaneamente",
-        "Sente sensação de recompensa por 'merecer' após o dia difícil",
-        "Evita lidar com emoções ao focar no sabor e na textura"
+        "Alívio imediato da ansiedade social e sensação de ‘se soltar’ no grupo",
+        "Maior facilidade de interagir por estar ocupando as mãos/boca",
+        "Redução temporária do desconforto por se sentir observado",
+        "Sensação momentânea de prazer e pertencimento ao fazer ‘igual’ aos outros"
       ],
-      explain: "Consequências imediatas (prazer/alívio) têm maior peso para manter o comportamento do que consequências tardias (culpa)."
+      explain: "Recaídas frequentemente combinam alívio/evitação (ansiedade) e regras rígidas (“já estraguei mesmo”)."
     },
     {
-      tag: "Pressão → recusa",
-      meta: "Criança • refeição",
-      text: "O pai insiste para a criança 'limpar o prato'. A criança empurra o prato, faz careta e o pai tira a comida dizendo 'tá bom, deixa'.",
-      hint: "Quem é reforçado aqui também? (criança e cuidador).",
-      A: "Pai pressiona e insiste para a criança comer/limpar o prato",
-      B: "Criança faz careta e empurra o prato (recusa ativa)",
-      C: "A pressão cessa imediatamente (fuga/evitação do desconforto)",
+      tag: "Recaída pós-conflito",
+      meta: "Patrícia (32) • briga em casa",
+      text: "Depois de uma discussão com o parceiro, Patrícia diz que fica com um ‘vazio’ no peito. Ela vai para a cozinha e come vários itens palatáveis em sequência.",
+      A: "Discussão + tristeza/raiva + sensação corporal de vazio/tensão",
+      B: "Come vários itens palatáveis em sequência na cozinha",
+      C: "Reduz a dor emocional no curto prazo (entorpecimento/alívio)",
       optsA: [
-        "Pai pressiona e insiste para a criança comer/limpar o prato",
-        "Alimento é pouco preferido e a criança antecipa desconforto",
-        "A refeição está demorando e a criança quer sair da mesa",
-        "O pai usa tom de voz mais rígido e aumenta exigência"
+        "Discussão + tristeza/raiva + sensação corporal de vazio/tensão",
+        "Ficar sozinha logo após o conflito, sem apoio imediato",
+        "Entrar na cozinha e ver alimentos palatáveis acessíveis",
+        "Pensar que não vai conseguir dormir daquele jeito"
       ],
       optsB: [
-        "Criança faz careta e empurra o prato (recusa ativa)",
-        "Criança vira o rosto e cruza os braços",
-        "Criança diz 'não vou comer' e começa a reclamar",
-        "Criança tenta levantar e sair da mesa"
+        "Come vários itens palatáveis em sequência na cozinha",
+        "Belisca enquanto anda pela casa e abre vários armários",
+        "Come rápido e continua mesmo sem fome",
+        "Come como forma de ‘desligar’ e parar de pensar"
       ],
       optsC: [
-        "A pressão cessa imediatamente (fuga/evitação do desconforto)",
-        "O pai interrompe a insistência e encerra o conflito",
-        "A criança evita o alimento e ganha pausa/saída da mesa",
-        "A tensão do momento diminui e a refeição é encerrada"
+        "Reduz a dor emocional no curto prazo (entorpecimento/alívio)",
+        "Distração momentânea dos pensamentos sobre a discussão",
+        "Sensação imediata de conforto e acolhimento",
+        "Alívio temporário da tensão no corpo (relaxamento breve)"
       ],
-      explain: "A recusa pode ser mantida por reforço negativo (escapar da pressão). O cuidador também pode ser reforçado ao parar o conflito (alívio)."
+      explain: "O que mantém costuma ser o alívio imediato/entorpecimento, mesmo que depois venha culpa e autocrítica."
     },
     {
-      tag: "TV + beliscos",
-      meta: "Adulto • rotina noturna",
-      text: "À noite, vendo séries, o paciente sempre pega pipoca e refrigerante. Ele relata que 'só de ligar a TV já dá vontade'.",
-      hint: "Pense em rotina/estímulo discriminativo + consequência imediata (prazer/relaxamento).",
-      A: "Ligar a TV e iniciar a série (rotina associada a comer)",
-      B: "Pega pipoca e refrigerante durante a série",
-      C: "Prazer sensorial + associação automática com entretenimento",
+      tag: "Padaria no trajeto",
+      meta: "Caio (30) • estímulos de ambiente",
+      text: "No caminho do trabalho, Caio passa pela padaria. Mesmo levando lanche, ele compra salgado e refrigerante quase automaticamente.",
+      A: "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
+      B: "Compra salgado e refrigerante no caminho do trabalho",
+      C: "Prazer e praticidade imediatos (evita esforço de usar o lanche levado)",
       optsA: [
-        "Ligar a TV e iniciar a série (rotina associada a comer)",
-        "Estar sentado no sofá à noite, no 'horário de relaxar'",
-        "Sentir vontade de relaxar após o dia e buscar conforto",
-        "Estar com petiscos e refrigerante facilmente acessíveis em casa"
+        "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
+        "Ver outras pessoas comprando e saindo com comida na mão",
+        "Estar com pouco tempo e querer algo rápido",
+        "Pensar que o lanche de casa é “menos gostoso”"
       ],
       optsB: [
-        "Pega pipoca e refrigerante durante a série",
-        "Belisca alimentos repetidamente ao longo do episódio",
-        "Levanta algumas vezes para buscar algo para comer durante a série",
-        "Come pequenas porções enquanto assiste para 'acompanhar' o entretenimento"
+        "Compra salgado e refrigerante no caminho do trabalho",
+        "Entra na padaria e escolhe itens rapidamente",
+        "Faz uma compra impulsiva no balcão",
+        "Compra algo palatável apesar de ter alternativa"
       ],
       optsC: [
-        "Prazer sensorial + associação automática com entretenimento",
-        "Sensação imediata de relaxamento e conforto no momento",
-        "Redução momentânea do tédio ao ocupar-se com a comida",
-        "Sensação de recompensa por 'finalizar o dia' com algo gostoso"
+        "Prazer e praticidade imediatos (evita esforço de usar o lanche levado)",
+        "Sensação imediata de recompensa por “se dar um agrado”",
+        "Redução do desconforto de ficar com fome antes de chegar",
+        "Alívio por resolver rápido a refeição sem planejamento naquele momento"
       ],
-      explain: "A TV pode funcionar como estímulo discriminativo (rotina). A consequência imediata costuma envolver prazer e/ou relaxamento, mantendo o hábito."
+      explain: "O antecedente é um SD do trajeto; a consequência central costuma ser ganho imediato (prazer/praticidade)."
     }
   ];
 
-  const TOTAL_ROUNDS = 10;
-  const TIME_LIMIT_SEC = 75;
+  const TOTAL_ROUNDS = BANK.length;
+  const TIME_LIMIT_SEC = 90;
 
-  // --- State ---
+  // ===== State =====
   let order = [];
   let idx = 0;
   let score = 0;
@@ -628,7 +553,7 @@
   let timer = null;
   let remaining = TIME_LIMIT_SEC;
 
-  // --- Elements ---
+  // ===== Elements =====
   const elRound = document.getElementById("round");
   const elTotal = document.getElementById("total");
   const elScore = document.getElementById("score");
@@ -636,7 +561,7 @@
   const elTag   = document.getElementById("tag");
   const elMeta  = document.getElementById("meta");
   const elCase  = document.getElementById("caseText");
-  const elHint  = document.getElementById("caseHint");
+
   const elChoicesA = document.getElementById("choicesA");
   const elChoicesB = document.getElementById("choicesB");
   const elChoicesC = document.getElementById("choicesC");
@@ -644,8 +569,6 @@
   const elSelB = document.getElementById("selB");
   const elSelC = document.getElementById("selC");
 
-  const elSubmit = document.getElementById("submitBtn");
-  const elSubmitM = document.getElementById("submitBtnMobile");
   const elNext = document.getElementById("nextBtn");
   const elReset = document.getElementById("resetBtn");
   const elSkip = document.getElementById("skipBtn");
@@ -669,10 +592,11 @@
   const blockC = document.getElementById("blockC");
   const prevStepBtn = document.getElementById("prevStepBtn");
   const nextStepBtn = document.getElementById("nextStepBtn");
+  const submitBtnMobile = document.getElementById("submitBtnMobile");
 
-  elTotal.textContent = TOTAL_ROUNDS;
+  elTotal.textContent = String(TOTAL_ROUNDS);
 
-  // --- Helpers ---
+  // ===== Helpers =====
   const shuffle = (arr) => {
     const a = arr.slice();
     for (let i=a.length-1;i>0;i--){
@@ -695,13 +619,33 @@
         stopTimer();
         if(!locked){
           locked = true;
-          showFeedback("⏳ Tempo!", "Tempo esgotado. Você pode seguir para o próximo caso (sem pontuar este).", "Dica: comece pela consequência provável (C), depois volte para A e B.");
+          showFeedback("⏳ Tempo!", "Tempo esgotado. Você pode seguir para o próximo caso (sem pontuar este).", "—");
           markAllNeutral();
-          disableActionsForLocked();
+          lockActions();
           elNext.style.display = "inline-block";
         }
       }
     }, 1000);
+  }
+
+  function isMobileLayout(){ return window.matchMedia("(max-width: 979px)").matches; }
+
+  let step = 0; // 0=A,1=B,2=C
+  function setStep(s){
+    step = Math.max(0, Math.min(2, s));
+    const tabs = [tabA, tabB, tabC];
+    const blocks = [blockA, blockB, blockC];
+    tabs.forEach((t,i)=>{
+      t.classList.toggle("active", i===step);
+      t.setAttribute("aria-selected", i===step ? "true":"false");
+    });
+    blocks.forEach((b,i)=> b.classList.toggle("active", i===step));
+
+    prevStepBtn.disabled = locked || step === 0;
+    nextStepBtn.disabled = locked || step === 2;
+
+    submitBtnMobile.style.display = (step === 2) ? "inline-block" : "none";
+    nextStepBtn.style.display = (step === 2) ? "none" : "inline-block";
   }
 
   function resetSelections(){
@@ -709,14 +653,18 @@
     elSelA.textContent = "—";
     elSelB.textContent = "—";
     elSelC.textContent = "—";
-    setSubmitEnabled(false);
+    submitBtnMobile.disabled = true;
     fb.classList.remove("show");
   }
 
   function canSubmit(){ return selected.A && selected.B && selected.C; }
-  function setSubmitEnabled(v){
-    elSubmit.disabled = !v;
-    elSubmitM.disabled = !v;
+
+  function showFeedback(title, text, extra=""){
+    fbTitle.textContent = title;
+    fbText.textContent = text;
+    fbExtra.textContent = extra;
+    fb.classList.add("show");
+    if(isMobileLayout()) fb.scrollIntoView({behavior:"smooth", block:"start"});
   }
 
   function setPill(which){
@@ -740,26 +688,15 @@
         btn.setAttribute("aria-pressed","true");
         selected[key] = txt;
         setPill(key);
-        setSubmitEnabled(canSubmit());
+        submitBtnMobile.disabled = !canSubmit();
 
-        // Mobile UX: auto-advance after selecting A or B
-        if (isMobileLayout()){
+        if(isMobileLayout()){
           if(key === "A") setStep(1);
           if(key === "B") setStep(2);
         }
       });
       container.appendChild(btn);
     });
-  }
-
-  function showFeedback(title, text, extra=""){
-    fbTitle.textContent = title;
-    fbText.textContent = text;
-    fbExtra.textContent = extra;
-    fb.classList.add("show");
-    if (isMobileLayout()){
-      fb.scrollIntoView({behavior:"smooth", block:"start"});
-    }
   }
 
   function markButtons(container, correctText, selectedText){
@@ -776,86 +713,50 @@
     });
   }
 
-  function disableActionsForLocked(){
-    setSubmitEnabled(false);
+  function lockActions(){
+    locked = true;
+    submitBtnMobile.disabled = true;
     elSkip.disabled = true;
     prevStepBtn.disabled = true;
     nextStepBtn.disabled = true;
+    stopTimer();
   }
-  function enableActionsForUnlocked(){
+  function unlockActions(){
+    locked = false;
     elSkip.disabled = false;
     prevStepBtn.disabled = false;
     nextStepBtn.disabled = false;
   }
 
-  function lockUI(){
-    locked = true;
-    disableActionsForLocked();
-    elNext.style.display = "inline-block";
-    stopTimer();
-  }
-  function unlockUI(){
-    locked = false;
-    enableActionsForUnlocked();
-    elNext.style.display = "none";
-  }
-
-  // --- Steps (mobile tabs) ---
-  let step = 0; // 0=A,1=B,2=C
-  function isMobileLayout(){
-    return window.matchMedia("(max-width: 979px)").matches;
-  }
-  function setStep(s){
-    step = Math.max(0, Math.min(2, s));
-    const tabs = [tabA, tabB, tabC];
-    const blocks = [blockA, blockB, blockC];
-    tabs.forEach((t,i)=>{
-      t.classList.toggle("active", i===step);
-      t.setAttribute("aria-selected", i===step ? "true":"false");
-    });
-    blocks.forEach((b,i)=> b.classList.toggle("active", i===step));
-
-    prevStepBtn.disabled = locked || step === 0;
-    nextStepBtn.disabled = locked || step === 2;
-
-    document.getElementById("submitBtnMobile").style.display = (step === 2) ? "inline-block" : "none";
-    nextStepBtn.style.display = (step === 2) ? "none" : "inline-block";
-  }
-
-  tabA.addEventListener("click", ()=> setStep(0));
-  tabB.addEventListener("click", ()=> setStep(1));
-  tabC.addEventListener("click", ()=> setStep(2));
-  prevStepBtn.addEventListener("click", ()=> setStep(step-1));
-  nextStepBtn.addEventListener("click", ()=> setStep(step+1));
-
-  // --- Game loop ---
   function loadRound(){
-    unlockUI();
+    unlockActions();
     resetSelections();
     markAllNeutral();
-
     const q = order[idx];
+
     elRound.textContent = String(idx+1);
     elTag.textContent = `Caso ${idx+1} • ${q.tag}`;
     elMeta.textContent = q.meta;
     elCase.textContent = q.text;
-    elHint.textContent = `Dica: ${q.hint}`;
 
     renderChoices(elChoicesA, shuffle(q.optsA), "A");
     renderChoices(elChoicesB, shuffle(q.optsB), "B");
     renderChoices(elChoicesC, shuffle(q.optsC), "C");
 
     setStep(0);
+    elNext.style.display = "none";
     startTimer();
   }
 
   function gradeRound(){
     const q = order[idx];
-    const results = {A: selected.A === q.A, B: selected.B === q.B, C: selected.C === q.C};
+    const okA = selected.A === q.A;
+    const okB = selected.B === q.B;
+    const okC = selected.C === q.C;
+    const gained = (okA?10:0) + (okB?10:0) + (okC?10:0);
 
-    const gained = (results.A?10:0) + (results.B?10:0) + (results.C?10:0);
     score += gained;
-    hits += (results.A?1:0) + (results.B?1:0) + (results.C?1:0);
+    hits += (okA?1:0) + (okB?1:0) + (okC?1:0);
 
     elScore.textContent = String(score);
     elHits.textContent = String(hits);
@@ -864,13 +765,14 @@
     markButtons(elChoicesB, q.B, selected.B);
     markButtons(elChoicesC, q.C, selected.C);
 
-    const correctCount = (results.A?1:0) + (results.B?1:0) + (results.C?1:0);
+    const correctCount = (okA?1:0) + (okB?1:0) + (okC?1:0);
     const title = correctCount === 3 ? "✅ Perfeito!" :
                   (correctCount === 2 ? "🟡 Quase lá!" :
                   (correctCount === 1 ? "🟠 Vamos ajustar!" : "🔴 Vamos revisar!"));
 
-    showFeedback(title, `Você acertou ${correctCount}/3 itens e ganhou ${gained} pontos.`, `Explicação: ${q.explain}`);
-    lockUI();
+    showFeedback(title, `Você acertou ${correctCount}/3 e ganhou ${gained} pontos.`, `Explicação: ${q.explain}`);
+    lockActions();
+    elNext.style.display = "inline-block";
     setStep(2);
   }
 
@@ -878,53 +780,63 @@
     stopTimer();
     const maxScore = TOTAL_ROUNDS * 30;
     const pct = Math.round((score / maxScore) * 100);
-    showFeedback("🏁 Fim do jogo!",
+    showFeedback(
+      "🏁 Fim do jogo!",
       `Pontuação final: ${score}/${maxScore} (${pct}%). Acertos (itens A/B/C): ${hits}/${TOTAL_ROUNDS*3}.`,
-      "Sugestão: refaça começando pela consequência (C) e descrevendo A/B com termos observáveis.");
+      "—"
+    );
     elNext.style.display = "none";
     elSkip.disabled = true;
-    setSubmitEnabled(false);
+    submitBtnMobile.disabled = true;
   }
 
   function startGame(){
-    const picked = shuffle(BANK);
-    order = [];
-    for(let i=0;i<TOTAL_ROUNDS;i++) order.push(picked[i % picked.length]);
+    order = shuffle(BANK);
     idx = 0;
     score = 0;
     hits = 0;
     elScore.textContent = "0";
     elHits.textContent = "0";
-    elSkip.disabled = false;
     loadRound();
   }
 
-  // Buttons
-  elSubmit.addEventListener("click", ()=> { if(!locked && canSubmit()) gradeRound(); });
-  elSubmitM.addEventListener("click", ()=> { if(!locked && canSubmit()) gradeRound(); });
-
-  elReset.addEventListener("click", ()=> startGame());
-
-  elNext.addEventListener("click", ()=> {
-    if(idx < TOTAL_ROUNDS-1){ idx++; loadRound(); }
-    else finishGame();
+  // ===== Events =====
+  submitBtnMobile.addEventListener("click", () => {
+    if(locked) return;
+    if(!canSubmit()) return;
+    gradeRound();
   });
 
-  elSkip.addEventListener("click", ()=> {
+  elNext.addEventListener("click", () => {
+    if(idx < TOTAL_ROUNDS-1){
+      idx++;
+      loadRound();
+    } else {
+      finishGame();
+    }
+  });
+
+  elReset.addEventListener("click", () => startGame());
+
+  elSkip.addEventListener("click", () => {
     if(locked) return;
     locked = true;
     stopTimer();
-    showFeedback("⏭️ Caso pulado", "Você pulou este caso (0 pontos). Vá para o próximo.", "Dica: na próxima, tente identificar primeiro a consequência imediata (C).");
-    disableActionsForLocked();
+    showFeedback("⏭️ Caso pulado", "Você pulou este caso (0 pontos).", "—");
+    lockActions();
     elNext.style.display = "inline-block";
   });
 
-  // Modal
+  tabA.addEventListener("click", ()=> setStep(0));
+  tabB.addEventListener("click", ()=> setStep(1));
+  tabC.addEventListener("click", ()=> setStep(2));
+  prevStepBtn.addEventListener("click", ()=> setStep(step-1));
+  nextStepBtn.addEventListener("click", ()=> setStep(step+1));
+
   helpBtn.addEventListener("click", ()=> modal.classList.add("show"));
   closeBtn.addEventListener("click", ()=> modal.classList.remove("show"));
   modal.addEventListener("click", (e)=> { if(e.target === modal) modal.classList.remove("show"); });
 
-  // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
     if(modal.classList.contains("show")){
       if(e.key === "Escape") modal.classList.remove("show");
@@ -933,7 +845,7 @@
     if(e.key === "1") setStep(0);
     if(e.key === "2") setStep(1);
     if(e.key === "3") setStep(2);
-    if(e.key === "Enter" && !elSubmit.disabled) elSubmit.click();
+    if(e.key === "Enter" && !submitBtnMobile.disabled) submitBtnMobile.click();
     if(e.key === "Escape" && elNext.style.display !== "none") elNext.click();
   });
 
