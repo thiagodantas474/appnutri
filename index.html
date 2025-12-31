@@ -6,9 +6,8 @@
   <title>Jogo ABC da Nutrição — Análise Funcional (Mobile)</title>
   <style>
     :root{
-      --bg:#0b1020; --card:#111a33; --muted:#9fb0ff;
-      --text:#e9eeff; --soft:#16224a; --ok:#22c55e; --bad:#ef4444;
-      --btn:#2b3cff; --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --bg:#0b1020; --text:#e9eeff;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
       --radius: 16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
@@ -68,8 +67,6 @@
       border: 1px solid rgba(255,255,255,.12);
       box-shadow:none;
     }
-
-    /* Layout base */
     main{
       display:grid;
       grid-template-columns: 1fr;
@@ -102,7 +99,7 @@
     .case{padding:14px; font-size:15px; line-height:1.35}
     .hint{margin-top:10px; color: rgba(233,238,255,.75); font-size:13px}
 
-    /* Mobile-first: tabs/pager */
+    /* Mobile tabs */
     .tabs{
       display:flex;
       gap:8px;
@@ -132,14 +129,13 @@
       background: rgba(43,60,255,.35);
       border-color: rgba(43,60,255,.55);
     }
-
     .panel{padding:12px 14px;}
     .block{
       background: rgba(0,0,0,.12);
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 14px;
       padding:12px;
-      display:none; /* shown by tab */
+      display:none;
     }
     .block.active{display:block}
     .block .lbl{
@@ -174,6 +170,7 @@
       margin-top:12px;
     }
     .row .btn{flex:1; min-width: 140px}
+
     .feedback{
       margin-top:12px;
       border-radius: 14px;
@@ -201,7 +198,7 @@
     .actionbar .btn{flex:1}
     .actionbar .btn.secondary{flex:.9}
 
-    /* Desktop enhancement (wider screens): show A/B/C blocks at once */
+    /* Desktop: show side-by-side and all blocks */
     @media (min-width: 980px){
       main{grid-template-columns: 1.1fr .9fr}
       .tabs{display:none}
@@ -246,7 +243,7 @@
     <header>
       <div>
         <h1>Jogo ABC da Nutrição — Análise Funcional</h1>
-        <div class="sub">No celular, você joga por etapas: escolha <b>A</b>, depois <b>B</b>, depois <b>C</b>. No computador, aparece tudo de uma vez.</div>
+        <div class="sub">No celular, jogue por etapas: escolha <b>A</b> → <b>B</b> → <b>C</b>. Todas as alternativas são plausíveis (o erro é por função, não por absurdo).</div>
       </div>
       <div class="stats">
         <div class="pill">Rodada <b id="round">1</b>/<b id="total">10</b></div>
@@ -277,7 +274,6 @@
             <p class="small" id="fbExtra"></p>
           </div>
 
-          <!-- Sticky actionbar (mobile) is outside; desktop uses row below -->
           <div class="row" id="desktopRow">
             <button class="btn secondary" id="skipBtn" type="button">Pular</button>
             <div style="display:flex; gap:10px; width:min(420px,100%);">
@@ -294,14 +290,13 @@
         <div class="hd">
           <div>
             <div class="badge">Selecione as opções</div>
-            <div class="small">Dica: descreva <b>B</b> como ação observável e <b>C</b> como efeito imediato.</div>
+            <div class="small">Dica: <b>B</b> é ação observável. <b>C</b> é efeito imediato (prazer/alívio/evitação/atenção).</div>
           </div>
           <div class="kpi">Atalhos: <span class="kbd">1</span> A · <span class="kbd">2</span> B · <span class="kbd">3</span> C</div>
         </div>
 
-        <!-- Mobile tabs -->
         <div class="tabs" role="tablist" aria-label="Etapas ABC">
-          <button class="tab active" id="tabA" role="tab" aria-selected="true">A (Antecedente)</button>
+          <button class="tab active" id="tabA" role="tab" aria-selected="true">A (Anteced.)</button>
           <button class="tab" id="tabB" role="tab" aria-selected="false">B (Comport.)</button>
           <button class="tab" id="tabC" role="tab" aria-selected="false">C (Consequ.)</button>
         </div>
@@ -323,7 +318,6 @@
           </div>
         </div>
 
-        <!-- Sticky actionbar (mobile only; hidden on desktop via media query) -->
         <div class="actionbar" id="actionbar">
           <button class="btn secondary" id="prevStepBtn" type="button">◀ Voltar</button>
           <button class="btn secondary" id="nextStepBtn" type="button">Avançar ▶</button>
@@ -345,9 +339,9 @@
       </div>
       <div class="bd">
         <ul style="margin:0; padding-left:18px; color:rgba(233,238,255,.88); line-height:1.4;">
-          <li><b>A</b>: contexto/situação que aumenta a chance do comportamento.</li>
+          <li><b>A</b>: contexto que aumenta a chance do comportamento (gatilho, ambiente, emoção, rotina, estímulo discriminativo).</li>
           <li><b>B</b>: comportamento <b>observável</b> (o que a pessoa faz).</li>
-          <li><b>C</b>: consequência imediata que pode manter (prazer, alívio, evitar esforço/ansiedade, etc.).</li>
+          <li><b>C</b>: efeito <b>imediato</b> que pode manter (prazer, alívio, evitação, atenção, praticidade).</li>
           <li>Pontuação: <b>+10</b> por item correto (A, B, C). Total <b>30</b> por caso.</li>
         </ul>
         <table class="table" aria-label="Exemplo rápido">
@@ -365,203 +359,259 @@
 
 <script>
 (() => {
-  // --- Question bank (Nutrition-focused ABC vignettes) ---
+  // ✅ Banco refeito: TODAS as alternativas são plausíveis e próximas da cena (erro = por função).
   const BANK = [
     {
       tag: "Comer emocional",
       meta: "Adulto • consultório",
       text: "Após uma reunião estressante, a paciente chega em casa, abre o armário e come biscoitos doces rapidamente, mesmo sem fome.",
-      hint: "Procure o gatilho imediato e o efeito de curto prazo.",
-      A: "Reunião estressante + sensação de tensão ao chegar em casa",
-      B: "Come biscoitos doces rapidamente, sem fome fisiológica",
-      C: "Alívio emocional imediato (reduz tensão) e sensação de conforto",
+      hint: "Procure o gatilho imediato e o efeito de curto prazo (o que mantém o padrão).",
+      A: "Vivenciar uma reunião estressante e chegar em casa com tensão/ansiedade",
+      B: "Come biscoitos doces rapidamente, mesmo sem fome fisiológica",
+      C: "Sente alívio emocional imediato e conforto momentâneo",
       optsA: [
-        "Reunião estressante + sensação de tensão ao chegar em casa",
-        "Leu um artigo sobre alimentação saudável",
-        "Dormiu 9 horas na noite anterior",
-        "Recebeu elogio no trabalho"
+        "Vivenciar uma reunião estressante e chegar em casa com tensão/ansiedade",
+        "Chegar em casa no fim do dia e ficar sozinho por alguns minutos",
+        "Sentir cansaço físico e querer relaxar depois do trabalho",
+        "Ver biscoitos doces disponíveis no armário/cozinha ao entrar"
       ],
       optsB: [
-        "Come biscoitos doces rapidamente, sem fome fisiológica",
-        "Planeja o cardápio da semana",
-        "Faz caminhada leve por 20 minutos",
-        "Bebe um copo d’água e espera"
+        "Come biscoitos doces rapidamente, mesmo sem fome fisiológica",
+        "Belisca pequenas porções enquanto anda pela cozinha",
+        "Come fora do planejado e repete porções à noite",
+        "Vai para a cozinha e procura algo doce para comer"
       ],
       optsC: [
-        "Alívio emocional imediato (reduz tensão) e sensação de conforto",
-        "Aumento do vocabulário acadêmico",
-        "Ganha um desconto no supermercado",
-        "Sente uma dor muscular no dia seguinte"
+        "Sente alívio emocional imediato e conforto momentâneo",
+        "Reduz momentaneamente pensamentos estressantes (distração)",
+        "Sente prazer sensorial imediato (sabor) e relaxamento",
+        "Diminui a tensão corporal no curto prazo"
       ],
-      explain: "A consequência de curto prazo (alívio/conforto) pode manter o comportamento, mesmo que depois venha culpa."
+      explain: "O comportamento pode se manter porque produz alívio/conforto imediato (reforço negativo/positivo), mesmo que depois venha culpa."
     },
     {
-      tag: "Ambiente e disponibilidade",
+      tag: "Padaria no caminho",
       meta: "Adulto • rotina",
-      text: "Toda vez que o paciente passa pela padaria no caminho do trabalho, ele compra salgados e refrigerante, apesar de ter levado lanche de casa.",
-      hint: "Pense em estímulos discriminativos e acesso fácil.",
-      A: "Passar em frente à padaria (cheiro/vitrine) + hábito do trajeto",
-      B: "Compra salgado e refrigerante no caminho do trabalho",
-      C: "Prazer imediato + praticidade (não precisa abrir o lanche levado)",
+      text: "No caminho do trabalho, sempre que passa pela padaria, o paciente compra salgado e refrigerante, apesar de ter levado lanche de casa.",
+      hint: "Pense em estímulos do ambiente e em consequências imediatas (prazer/praticidade).",
+      A: "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
+      B: "Compra salgado e refrigerante na padaria antes de chegar ao trabalho",
+      C: "Sente prazer imediato e praticidade (evita esforço de usar o lanche levado)",
       optsA: [
-        "Passar em frente à padaria (cheiro/vitrine) + hábito do trajeto",
-        "Ter feito academia ontem",
-        "Saber que ultraprocessados fazem mal",
-        "Ter comprado frutas no fim de semana"
+        "Passar em frente à padaria (cheiro/vitrine) no trajeto habitual",
+        "Estar com fome moderada perto do horário do lanche",
+        "Ver colegas entrando na padaria no mesmo horário",
+        "Ter o dinheiro/forma de pagamento fácil no momento"
       ],
       optsB: [
-        "Compra salgado e refrigerante no caminho do trabalho",
-        "Registra as refeições em um aplicativo",
-        "Prepara uma salada no jantar",
-        "Lê o rótulo nutricional com calma"
+        "Compra salgado e refrigerante na padaria antes de chegar ao trabalho",
+        "Entra na padaria e escolhe um item para comer na hora",
+        "Adia o lanche levado e decide comer algo comprado",
+        "Compra algo pronto para consumir rapidamente no caminho"
       ],
       optsC: [
-        "Prazer imediato + praticidade (não precisa abrir o lanche levado)",
-        "Redução do colesterol em 3 meses",
-        "Recebe uma ligação do médico",
-        "A padaria fecha no feriado"
+        "Sente prazer imediato e praticidade (evita esforço de usar o lanche levado)",
+        "Reduz a fome rapidamente e mantém o ritmo do trajeto",
+        "Sente recompensa por 'se presentear' após um início de dia difícil",
+        "Evita a sensação de privação e a ideia de 'lanche sem graça'"
       ],
-      explain: "O contexto (padaria no trajeto) funciona como antecedente; a consequência imediata envolve reforço positivo (prazer) e negativo (evita esforço)."
+      explain: "O ambiente funciona como estímulo discriminativo; a consequência tende a combinar prazer (reforço positivo) e economia de esforço/tempo (reforço negativo)."
     },
     {
-      tag: "Refeição infantil",
+      tag: "Jantar infantil",
       meta: "Criança • família",
-      text: "Na hora do jantar, a criança recusa a comida e chora. Para 'evitar briga', a mãe oferece um iogurte doce e libera o celular.",
-      hint: "Observe como a consequência afeta o comportamento da mãe e da criança.",
-      A: "Jantar servido + mãe pede para comer; criança percebe pressão",
-      B: "Recusa a comida e chora",
-      C: "Ganha iogurte doce e celular; mãe reduz conflito imediatamente",
+      text: "Na hora do jantar, a criança recusa a comida e chora. Para evitar briga, a mãe oferece um iogurte doce e libera o celular.",
+      hint: "Observe efeitos imediatos para a criança e para o cuidador.",
+      A: "Início do jantar com exigência para comer um alimento pouco preferido",
+      B: "Recusa a comida e chora na mesa",
+      C: "Acessa iogurte doce e celular; conflito/pressão diminuem imediatamente",
       optsA: [
-        "Jantar servido + mãe pede para comer; criança percebe pressão",
-        "A criança foi elogiada na escola",
-        "A mãe planejou o cardápio no domingo",
-        "A criança tomou água à tarde"
+        "Início do jantar com exigência para comer um alimento pouco preferido",
+        "Criança percebe que o cuidador está insistindo/pressionando",
+        "Criança está cansada e com baixa tolerância à frustração no fim do dia",
+        "Criança está com fome, mas quer controlar o que vai comer"
       ],
       optsB: [
-        "Recusa a comida e chora",
-        "Come a refeição completa e pede sobremesa",
-        "Ajuda a colocar a mesa",
-        "Dorme cedo e tranquilo"
+        "Recusa a comida e chora na mesa",
+        "Afasta o prato e faz careta para o alimento",
+        "Diz 'não quero' repetidas vezes e aumenta o tom de voz",
+        "Se levanta da mesa e tenta sair do jantar"
       ],
       optsC: [
-        "Ganha iogurte doce e celular; mãe reduz conflito imediatamente",
-        "A criança cresce 2 cm no mês",
-        "O pediatra marca consulta para daqui a 6 meses",
-        "A família compra verduras na feira"
+        "Acessa iogurte doce e celular; conflito/pressão diminuem imediatamente",
+        "Ganha alternativa mais palatável e evita o alimento do jantar",
+        "Recebe atenção imediata e negociação por parte do cuidador",
+        "A mãe sente alívio do conflito e encerra a insistência naquele momento"
       ],
-      explain: "A consequência reforça a recusa (a criança obtém itens preferidos) e também reforça o comportamento da mãe (alívio do conflito)."
+      explain: "A recusa pode ser mantida por acesso a itens preferidos (reforço positivo) e/ou por fuga da pressão (reforço negativo). Também pode reforçar o comportamento do cuidador (alívio ao evitar briga)."
     },
     {
       tag: "Restrição → excesso",
       meta: "Adulto • dieta restritiva",
       text: "O paciente passa o dia comendo muito pouco para 'compensar'. À noite, sente muita fome e come grandes quantidades de pão e doces.",
-      hint: "Gatilho fisiológico + regra rígida costumam entrar aqui.",
-      A: "Longo período de restrição alimentar durante o dia",
-      B: "Episódio de comer em grande quantidade à noite (pão/doces)",
-      C: "Reduz fome intensa e sensação de privação (alívio) + prazer",
+      hint: "Antecedente pode incluir privação fisiológica e regras rígidas.",
+      A: "Passar o dia em restrição alimentar (privação) para 'compensar'",
+      B: "À noite, come grandes quantidades de pão e doces",
+      C: "Reduz fome intensa e sensação de privação, com prazer imediato",
       optsA: [
-        "Longo período de restrição alimentar durante o dia",
-        "Ter tomado sol pela manhã",
-        "Ter conversado com um amigo",
-        "Ter comprado uma garrafa d’água nova"
+        "Passar o dia em restrição alimentar (privação) para 'compensar'",
+        "Longo intervalo entre refeições e pouca disponibilidade de opções práticas",
+        "Terminar o dia com cansaço e pouca energia para preparar refeição planejada",
+        "Pensar que 'já estragou a dieta' depois de um pequeno deslize"
       ],
       optsB: [
-        "Episódio de comer em grande quantidade à noite (pão/doces)",
-        "Prepara marmitas para a semana",
-        "Bebe chá sem açúcar",
-        "Lava a louça do jantar"
+        "À noite, come grandes quantidades de pão e doces",
+        "Come rápido e repete porções quando chega em casa",
+        "Abre vários alimentos disponíveis e alterna entre eles",
+        "Come até sentir desconforto físico, apesar de querer parar"
       ],
       optsC: [
-        "Reduz fome intensa e sensação de privação (alívio) + prazer",
-        "Aprende um novo conteúdo de bioquímica",
-        "Recebe uma multa no trânsito",
-        "A academia muda o horário"
+        "Reduz fome intensa e sensação de privação, com prazer imediato",
+        "Sente alívio por 'finalmente comer' depois de um dia difícil",
+        "Diminui temporariamente ansiedade/irritação do fim do dia",
+        "Evita a tarefa de cozinhar e resolve a fome rapidamente"
       ],
-      explain: "A consequência imediata (redução de privação/fome + prazer) mantém o ciclo."
+      explain: "O ciclo pode se manter porque o episódio noturno produz alívio imediato da privação e recompensa sensorial, reforçando o padrão."
     },
     {
       tag: "Ansiedade social",
       meta: "Adulto • eventos",
       text: "Em eventos sociais, o paciente fica ansioso e passa a beliscar o tempo todo. Ele diz que assim 'não precisa falar com ninguém'.",
-      hint: "Procure a função de evitar contato/ansiedade.",
-      A: "Evento social + aumento de ansiedade e desconforto",
+      hint: "Procure função de fuga/evitação e/ou regulação emocional.",
+      A: "Estar em evento social e sentir aumento de ansiedade/desconforto",
       B: "Belisca continuamente durante o evento",
       C: "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
       optsA: [
-        "Evento social + aumento de ansiedade e desconforto",
-        "Ter dormido bem na noite anterior",
-        "Ter feito compras no mercado",
-        "Ter lido um post sobre proteínas"
+        "Estar em evento social e sentir aumento de ansiedade/desconforto",
+        "Não saber com quem conversar e ficar sem um 'papel' definido no ambiente",
+        "Perceber olhares/autoavaliação e medo de julgamento",
+        "Estar perto da mesa de comida e ter fácil acesso aos petiscos"
       ],
       optsB: [
         "Belisca continuamente durante o evento",
-        "Pede informações ao anfitrião",
-        "Sai para caminhar no quarteirão",
-        "Bebe apenas água"
+        "Come pequenas porções repetidas vezes ao longo da conversa",
+        "Fica comendo para ocupar as mãos e o tempo",
+        "Pega algo para comer sempre que fica em silêncio"
       ],
       optsC: [
         "Evita interações e reduz ansiedade no curto prazo (fuga/evitação)",
-        "Ganha massa muscular em 6 meses",
-        "O evento termina às 23h",
-        "Compra roupas novas depois"
+        "Sente alívio por ter uma 'atividade' e não precisar falar",
+        "Diminui a autopercepção desconfortável ao se distrair com a comida",
+        "Recebe comentários/atenção por estar comendo (o que pode manter)"
       ],
-      explain: "A consequência principal é reforço negativo: reduz ansiedade ao evitar contato."
+      explain: "O beliscar pode funcionar como estratégia de evitação social e regulação emocional, sendo reforçado negativamente (reduz ansiedade) e às vezes positivamente (atenção)."
     },
     {
-      tag: "Rotina e cansaço",
+      tag: "Delivery no cansaço",
       meta: "Adulto • adesão",
       text: "Depois de um dia longo, a paciente chega sem energia e pede delivery. Ela diz que 'não dá' para cozinhar, mesmo tendo comida em casa.",
-      hint: "Antecedente pode ser fadiga + baixa disponibilidade de resposta.",
-      A: "Cansaço intenso ao chegar em casa + percepção de pouco tempo",
+      hint: "Cansaço e demanda de esforço costumam aumentar comportamento de escolha por praticidade.",
+      A: "Chegar em casa cansada e com pouca energia/tempo percebido",
       B: "Pede delivery em vez de preparar comida disponível",
-      C: "Economiza esforço/tempo e sente recompensa imediata (praticidade)",
+      C: "Economiza esforço e obtém alívio imediato (praticidade/recompensa)",
       optsA: [
-        "Cansaço intenso ao chegar em casa + percepção de pouco tempo",
-        "Ter bebido água durante o dia",
-        "Ter uma consulta marcada daqui a 2 semanas",
-        "Ter visto um documentário"
+        "Chegar em casa cansada e com pouca energia/tempo percebido",
+        "Perceber a cozinha desorganizada e antecipar a tarefa como 'grande'",
+        "Estar com fome e querer uma solução rápida",
+        "Abrir o aplicativo de delivery e ver promoções/combos no horário"
       ],
       optsB: [
         "Pede delivery em vez de preparar comida disponível",
-        "Organiza a geladeira por categorias",
-        "Lê um capítulo do livro",
-        "Faz alongamento de 5 minutos"
+        "Abre o aplicativo e finaliza o pedido rapidamente",
+        "Escolhe comida pronta para 'resolver' o jantar sem preparo",
+        "Decide por refeição pronta após olhar a geladeira"
       ],
       optsC: [
-        "Economiza esforço/tempo e sente recompensa imediata (praticidade)",
-        "Melhora a pressão arterial em 1 ano",
-        "O restaurante fecha no domingo",
-        "A paciente compra uma panela nova"
+        "Economiza esforço e obtém alívio imediato (praticidade/recompensa)",
+        "Reduz a sensação de sobrecarga ao evitar cozinhar e lavar louça",
+        "Sente prazer imediato por comer algo palatável",
+        "Evita lidar com decisões alimentares (reduz demanda mental)"
       ],
-      explain: "A consequência imediata reduz demanda de esforço (reforço negativo) e oferece gratificação (reforço positivo)."
+      explain: "O comportamento pode se manter por reforço negativo (evitar esforço/sobrecarga) e reforço positivo (prazer/sabor)."
     },
     {
-      tag: "TV e beliscos",
-      meta: "Adulto • estímulos",
+      tag: "Proibição rígida",
+      meta: "Adulto • regras alimentares",
+      text: "O paciente cria a regra 'nunca posso comer chocolate'. Após um dia difícil, ele come chocolate escondido e depois se culpa.",
+      hint: "Regras rígidas podem aumentar privação e tornar o item mais 'atrativo'.",
+      A: "Dia difícil + regra rígida de proibição e sensação de privação",
+      B: "Come chocolate escondido",
+      C: "Prazer/alívio imediato; a culpa vem depois (tardia)",
+      optsA: [
+        "Dia difícil + regra rígida de proibição e sensação de privação",
+        "Estar sozinho em casa e ter chocolate disponível no armário",
+        "Sentir ansiedade e buscar algo para aliviar no momento",
+        "Pensar 'já falhei hoje mesmo' após pequena quebra do plano"
+      ],
+      optsB: [
+        "Come chocolate escondido",
+        "Come um pedaço e volta para buscar mais",
+        "Come rápido e tenta 'compensar' depois mentalmente",
+        "Vai até a cozinha especificamente para pegar chocolate"
+      ],
+      optsC: [
+        "Prazer/alívio imediato; a culpa vem depois (tardia)",
+        "Reduz desconforto emocional momentaneamente",
+        "Sente sensação de recompensa por 'merecer' após o dia difícil",
+        "Evita lidar com emoções ao focar no sabor e na textura"
+      ],
+      explain: "Consequências imediatas (prazer/alívio) têm maior peso para manter o comportamento do que consequências tardias (culpa)."
+    },
+    {
+      tag: "Pressão → recusa",
+      meta: "Criança • refeição",
+      text: "O pai insiste para a criança 'limpar o prato'. A criança empurra o prato, faz careta e o pai tira a comida dizendo 'tá bom, deixa'.",
+      hint: "Quem é reforçado aqui também? (criança e cuidador).",
+      A: "Pai pressiona e insiste para a criança comer/limpar o prato",
+      B: "Criança faz careta e empurra o prato (recusa ativa)",
+      C: "A pressão cessa imediatamente (fuga/evitação do desconforto)",
+      optsA: [
+        "Pai pressiona e insiste para a criança comer/limpar o prato",
+        "Alimento é pouco preferido e a criança antecipa desconforto",
+        "A refeição está demorando e a criança quer sair da mesa",
+        "O pai usa tom de voz mais rígido e aumenta exigência"
+      ],
+      optsB: [
+        "Criança faz careta e empurra o prato (recusa ativa)",
+        "Criança vira o rosto e cruza os braços",
+        "Criança diz 'não vou comer' e começa a reclamar",
+        "Criança tenta levantar e sair da mesa"
+      ],
+      optsC: [
+        "A pressão cessa imediatamente (fuga/evitação do desconforto)",
+        "O pai interrompe a insistência e encerra o conflito",
+        "A criança evita o alimento e ganha pausa/saída da mesa",
+        "A tensão do momento diminui e a refeição é encerrada"
+      ],
+      explain: "A recusa pode ser mantida por reforço negativo (escapar da pressão). O cuidador também pode ser reforçado ao parar o conflito (alívio)."
+    },
+    {
+      tag: "TV + beliscos",
+      meta: "Adulto • rotina noturna",
       text: "À noite, vendo séries, o paciente sempre pega pipoca e refrigerante. Ele relata que 'só de ligar a TV já dá vontade'.",
-      hint: "A TV pode funcionar como estímulo discriminativo.",
-      A: "Ligar a TV/começar a série (rotina associada a comer)",
+      hint: "Pense em rotina/estímulo discriminativo + consequência imediata (prazer/relaxamento).",
+      A: "Ligar a TV e iniciar a série (rotina associada a comer)",
       B: "Pega pipoca e refrigerante durante a série",
       C: "Prazer sensorial + associação automática com entretenimento",
       optsA: [
-        "Ligar a TV/começar a série (rotina associada a comer)",
-        "Ter feito exame de sangue",
-        "Ter tomado banho de manhã",
-        "Ter estudado estatística"
+        "Ligar a TV e iniciar a série (rotina associada a comer)",
+        "Estar sentado no sofá à noite, no 'horário de relaxar'",
+        "Sentir vontade de relaxar após o dia e buscar conforto",
+        "Estar com petiscos e refrigerante facilmente acessíveis em casa"
       ],
       optsB: [
         "Pega pipoca e refrigerante durante a série",
-        "Vai dormir cedo",
-        "Organiza o armário",
-        "Faz compras on-line"
+        "Belisca alimentos repetidamente ao longo do episódio",
+        "Levanta algumas vezes para buscar algo para comer durante a série",
+        "Come pequenas porções enquanto assiste para 'acompanhar' o entretenimento"
       ],
       optsC: [
         "Prazer sensorial + associação automática com entretenimento",
-        "Redução do colesterol no próximo ano",
-        "Mudança de cidade no fim do ano",
-        "Aumento do preço do gás"
+        "Sensação imediata de relaxamento e conforto no momento",
+        "Redução momentânea do tédio ao ocupar-se com a comida",
+        "Sensação de recompensa por 'finalizar o dia' com algo gostoso"
       ],
-      explain: "O contexto (TV/série) sinaliza reforçamento histórico com comida; a consequência imediata é prazer."
+      explain: "A TV pode funcionar como estímulo discriminativo (rotina). A consequência imediata costuma envolver prazer e/ou relaxamento, mantendo o hábito."
     }
   ];
 
@@ -645,7 +695,7 @@
         stopTimer();
         if(!locked){
           locked = true;
-          showFeedback("⏳ Tempo!", "Tempo esgotado. Você pode seguir para o próximo caso (sem pontuar este).", "Dica: tente começar pela consequência (C) e depois volte para A e B.");
+          showFeedback("⏳ Tempo!", "Tempo esgotado. Você pode seguir para o próximo caso (sem pontuar este).", "Dica: comece pela consequência provável (C), depois volte para A e B.");
           markAllNeutral();
           disableActionsForLocked();
           elNext.style.display = "inline-block";
@@ -692,7 +742,7 @@
         setPill(key);
         setSubmitEnabled(canSubmit());
 
-        // Mobile UX: auto-advance to next step after selecting
+        // Mobile UX: auto-advance after selecting A or B
         if (isMobileLayout()){
           if(key === "A") setStep(1);
           if(key === "B") setStep(2);
@@ -707,7 +757,6 @@
     fbText.textContent = text;
     fbExtra.textContent = extra;
     fb.classList.add("show");
-    // bring feedback into view on mobile
     if (isMobileLayout()){
       fb.scrollIntoView({behavior:"smooth", block:"start"});
     }
@@ -754,7 +803,6 @@
   // --- Steps (mobile tabs) ---
   let step = 0; // 0=A,1=B,2=C
   function isMobileLayout(){
-    // tabs are hidden on desktop; easiest check is viewport width
     return window.matchMedia("(max-width: 979px)").matches;
   }
   function setStep(s){
@@ -770,8 +818,6 @@
     prevStepBtn.disabled = locked || step === 0;
     nextStepBtn.disabled = locked || step === 2;
 
-    // update mobile action primary button
-    // show Conferir only at step C, otherwise show Avançar highlighted
     document.getElementById("submitBtnMobile").style.display = (step === 2) ? "inline-block" : "none";
     nextStepBtn.style.display = (step === 2) ? "none" : "inline-block";
   }
@@ -825,8 +871,6 @@
 
     showFeedback(title, `Você acertou ${correctCount}/3 itens e ganhou ${gained} pontos.`, `Explicação: ${q.explain}`);
     lockUI();
-
-    // After grading, jump to C to show the final block
     setStep(2);
   }
 
@@ -836,7 +880,7 @@
     const pct = Math.round((score / maxScore) * 100);
     showFeedback("🏁 Fim do jogo!",
       `Pontuação final: ${score}/${maxScore} (${pct}%). Acertos (itens A/B/C): ${hits}/${TOTAL_ROUNDS*3}.`,
-      "Sugestão: refaça tentando começar pela consequência (C). Depois descreva A e B com termos observáveis.");
+      "Sugestão: refaça começando pela consequência (C) e descrevendo A/B com termos observáveis.");
     elNext.style.display = "none";
     elSkip.disabled = true;
     setSubmitEnabled(false);
@@ -870,7 +914,7 @@
     if(locked) return;
     locked = true;
     stopTimer();
-    showFeedback("⏭️ Caso pulado", "Você pulou este caso (0 pontos). Vá para o próximo.", "Dica: tente identificar primeiro a consequência imediata (C).");
+    showFeedback("⏭️ Caso pulado", "Você pulou este caso (0 pontos). Vá para o próximo.", "Dica: na próxima, tente identificar primeiro a consequência imediata (C).");
     disableActionsForLocked();
     elNext.style.display = "inline-block";
   });
@@ -893,11 +937,7 @@
     if(e.key === "Escape" && elNext.style.display !== "none") elNext.click();
   });
 
-  // Re-apply step layout on resize (switching mobile/desktop)
-  window.addEventListener("resize", ()=> {
-    // Keep step visible and update button visibility
-    setStep(step);
-  });
+  window.addEventListener("resize", ()=> setStep(step));
 
   // Start
   startGame();
